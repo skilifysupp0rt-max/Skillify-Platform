@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skillify — Checkout</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <!-- PayPal SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
+    <style>
+        :root {
+            --bg: #050507;
+            --panel: #0a0a0f;
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #ffffff;
+            --text-muted: #71717a;
+            --primary: #6366f1;
+            --accent: #22d3ee;
+            --success: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .checkout-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 1000px;
+            width: 100%;
+            background: var(--panel);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .order-summary {
+            padding: 50px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, var(--panel) 100%);
+            border-right: 1px solid var(--border);
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .back-link:hover {
+            color: var(--text);
+        }
+
+        .order-summary h2 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .order-summary p {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        .plan-details {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .plan-name {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .plan-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), #a855f7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .plan-info h3 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .plan-info span {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .plan-price {
+            text-align: right;
+        }
+
+        .plan-price .amount {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .plan-price .period {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .features-list {
+            list-style: none;
+        }
+
+        .features-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .features-list .check {
+            color: var(--success);
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-top: 1px solid var(--border);
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .payment-section {
+            padding: 50px;
+        }
+
+        .payment-section h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .payment-method {
+            padding: 20px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        .payment-method:hover,
+        .payment-method.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .payment-method i {
+            font-size: 28px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .payment-method span {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .pay-btn {
+            width: 100%;
+            padding: 18px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), #a855f7);
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 20px;
+        }
+
+        .pay-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .pay-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .secure-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .secure-badge i {
+            color: var(--success);
+        }
+
+        #paypal-button-container {
+            margin-top: 20px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+
+            .order-summary {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="checkout-container">
+        <!-- Order Summary -->
+        <div class="order-summary">
+            <a href="/pricing.html" class="back-link">
+                <i class="ph ph-arrow-left"></i> Back to Plans
+            </a>
+            <h2>Order Summary</h2>
+            <p>Complete your purchase to unlock all features</p>
+
+            <div class="plan-details">
+                <div class="plan-header">
+                    <div class="plan-name">
+                        <div class="plan-icon">
+                            <i class="ph ph-crown"></i>
+                        </div>
+                        <div class="plan-info">
+                            <h3 id="selected-plan">Pro Plan</h3>
+                            <span id="billing-period">Monthly Billing</span>
+                        </div>
+                    </div>
+                    <div class="plan-price">
+                        <div class="amount" id="plan-amount">$9.99</div>
+                        <div class="period">/month</div>
+                    </div>
+                </div>
+                <ul class="features-list">
+                    <li><i class="ph ph-check-circle check"></i> All courses unlocked</li>
+                    <li><i class="ph ph-check-circle check"></i> Advanced quizzes</li>
+                    <li><i class="ph ph-check-circle check"></i> Verified certificates</li>
+                    <li><i class="ph ph-check-circle check"></i> Priority support</li>
+                </ul>
+            </div>
+
+            <div class="total-row">
+                <span>Total</span>
+                <span id="total-amount">$9.99</span>
+            </div>
+        </div>
+
+        <!-- Payment Form -->
+        <div class="payment-section">
+            <h2>Payment Method</h2>
+
+            <div id="error-container"></div>
+
+            <div class="payment-methods">
+                <div class="payment-method active" onclick="selectPayment('stripe')">
+                    <i class="ph ph-credit-card"></i>
+                    <span>Credit Card</span>
+                </div>
+                <div class="payment-method" onclick="selectPayment('paypal')">
+                    <i class="ph ph-paypal-logo"></i>
+                    <span>PayPal</span>
+                </div>
+            </div>
+
+            <!-- Stripe Button -->
+            <div id="stripe-container">
+                <button class="pay-btn" id="stripe-btn" onclick="handleStripeCheckout()">
+                    <span id="stripe-btn-text">Pay with Card</span>
+                </button>
+            </div>
+
+            <!-- PayPal Button -->
+            <div id="paypal-button-container" style="display: none;"></div>
+
+            <div class="secure-badge">
+                <i class="ph ph-lock"></i>
+                Secured by 256-bit SSL encryption
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get URL params
+        const params = new URLSearchParams(window.location.search);
+        const plan = params.get('plan') || 'pro';
+        const billing = params.get('billing') || 'monthly';
+
+        // Plan prices
+        const prices = {
+            pro: { monthly: 9.99, yearly: 7.99 },
+            enterprise: { monthly: 29.99, yearly: 23.99 }
+        };
+
+        // Update UI
+        const price = prices[plan]?.[billing] || 9.99;
+        document.getElementById('selected-plan').innerText = plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan';
+        document.getElementById('billing-period').innerText = billing.charAt(0).toUpperCase() + billing.slice(1) + ' Billing';
+        document.getElementById('plan-amount').innerText = '$' + price;
+        document.getElementById('total-amount').innerText = '$' + price;
+        document.getElementById('stripe-btn-text').innerText = 'Pay $' + price;
+
+        let paymentMethod = 'stripe';
+        let stripe = null;
+
+        // Initialize Stripe
+        async function initStripe() {
+            try {
+                const res = await fetch('/api/payment/config');
+                const config = await res.json();
+                stripe = Stripe(config.stripePublishableKey);
+            } catch (e) {
+                console.error('Failed to initialize Stripe:', e);
+            }
+        }
+        initStripe();
+
+        // Payment method selection
+        function selectPayment(method) {
+            paymentMethod = method;
+            document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('active'));
+            event.target.closest('.payment-method').classList.add('active');
+
+            if (method === 'stripe') {
+                document.getElementById('stripe-container').style.display = 'block';
+                document.getElementById('paypal-button-container').style.display = 'none';
+            } else {
+                document.getElementById('stripe-container').style.display = 'none';
+                document.getElementById('paypal-button-container').style.display = 'block';
+                initPayPal();
+            }
+        }
+
+        // Show error
+        function showError(message) {
+            const container = document.getElementById('error-container');
+            container.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+
+        // Handle Stripe checkout
+        async function handleStripeCheckout() {
+            const btn = document.getElementById('stripe-btn');
+            const btnText = document.getElementById('stripe-btn-text');
+
+            btn.disabled = true;
+            btnText.innerHTML = '<div class="loading"><div class="spinner"></div> Processing...</div>';
+
+            try {
+                const res = await fetch('/api/payment/create-checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plan, billing })
+                });
+
+                const data = await res.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Redirect to Stripe Checkout
+                if (data.url) {
+                    window.location.href = data.url;
+                } else if (stripe && data.sessionId) {
+                    const result = await stripe.redirectToCheckout({ sessionId: data.sessionId });
+                    if (result.error) {
+                        throw new Error(result.error.message);
+                    }
+                }
+            } catch (err) {
+                showError(err.message || 'Payment failed. Please try again.');
+                btn.disabled = false;
+                btnText.innerText = 'Pay $' + price;
+            }
+        }
+
+        // Initialize PayPal
+        let paypalInitialized = false;
+        function initPayPal() {
+            if (paypalInitialized) return;
+            paypalInitialized = true;
+
+            if (typeof paypal === 'undefined') {
+                showError('PayPal SDK failed to load. Please refresh the page.');
+                return;
+            }
+
+            paypal.Buttons({
+                style: {
+                    layout: 'vertical',
+                    color: 'gold',
+                    shape: 'rect',
+                    label: 'paypal'
+                },
+                createOrder: async function () {
+                    try {
+                        const res = await fetch('/api/payment/create-paypal-order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ plan, billing })
+                        });
+                        const data = await res.json();
+
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+
+                        return data.orderId;
+                    } catch (err) {
+                        showError(err.message);
+                        throw err;
+                    }
+                },
+                onApprove: async function (data) {
+                    // Redirect to success handler
+                    window.location.href = `/api/payment/paypal-success?token=${data.orderID}&plan=${plan}&billing=${billing}`;
+                },
+                onError: function (err) {
+                    showError('PayPal payment failed. Please try again.');
+                    console.error('PayPal error:', err);
+                }
+            }).render('#paypal-button-container');
+        }
+
+        // Check for payment success/cancel from URL
+        const paymentStatus = params.get('payment');
+        if (paymentStatus === 'success') {
+            alert('🎉 Payment successful! Welcome to Skillify Pro!');
+            window.location.href = '/dashboard.html';
+        } else if (paymentStatus === 'cancelled') {
+            showError('Payment was cancelled.');
+        } else if (paymentStatus === 'failed') {
+            showError('Payment failed. Please try again.');
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skillify — Pricing Plans</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --bg: #050507;
+            --panel: #0a0a0f;
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #ffffff;
+            --text-muted: #71717a;
+            --primary: #6366f1;
+            --accent: #22d3ee;
+            --success: #10b981;
+            --gold: #fbbf24;
+            --purple: #a855f7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 60px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            border: none;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 80px 20px 40px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--text), var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Toggle */
+        .billing-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            align-items: center;
+            margin: 40px 0;
+        }
+
+        .toggle-btn {
+            padding: 12px 24px;
+            border-radius: 100px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .toggle-btn.active {
+            background: var(--panel);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .save-badge {
+            background: linear-gradient(135deg, var(--success), var(--accent));
+            color: white;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* Pricing Cards */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 80px;
+        }
+
+        .pricing-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .pricing-card.popular {
+            border-color: var(--primary);
+            background: linear-gradient(180deg, rgba(99, 102, 241, 0.1) 0%, var(--panel) 100%);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            color: white;
+            padding: 6px 20px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .plan-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .plan-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .plan-desc {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .plan-price {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .price-currency {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .price-amount {
+            font-size: 56px;
+            font-weight: 800;
+        }
+
+        .price-period {
+            font-size: 16px;
+            color: var(--text-muted);
+        }
+
+        .plan-features {
+            list-style: none;
+            margin: 30px 0;
+        }
+
+        .plan-features li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+
+        .plan-features .check {
+            color: var(--success);
+            font-size: 18px;
+        }
+
+        .plan-features .x {
+            color: #ef4444;
+            font-size: 18px;
+        }
+
+        .plan-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        /* Features Section */
+        .features-section {
+            background: var(--panel);
+            padding: 80px 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: rgba(99, 102, 241, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--primary);
+            margin: 0 auto 20px;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Payment Methods */
+        .payment-methods {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .payment-methods h3 {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .payment-icons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            opacity: 0.6;
+        }
+
+        .payment-icons img {
+            height: 32px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        @media (max-width: 968px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <a href="/dashboard.html" class="logo">Skillify</a>
+        <nav class="nav-links">
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/pricing.html" style="color: var(--text);">Pricing</a>
+            <a href="/privacy.html">Privacy</a>
+        </nav>
+        <a href="/dashboard.html" class="btn btn-outline">Back to Dashboard</a>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-badge">💎 Simple, Transparent Pricing</div>
+        <h1>Choose Your Plan</h1>
+        <p>Start learning for free. Upgrade anytime to unlock all courses and premium features.</p>
+    </section>
+
+    <!-- Billing Toggle -->
+    <div class="billing-toggle">
+        <button class="toggle-btn active" onclick="setBilling('monthly')">Monthly</button>
+        <button class="toggle-btn" onclick="setBilling('yearly')">Yearly</button>
+        <span class="save-badge">Save 20%</span>
+    </div>
+
+    <!-- Pricing Cards -->
+    <div class="pricing-grid">
+        <!-- Free Plan -->
+        <div class="pricing-card">
+            <div class="plan-icon" style="background: rgba(113, 113, 122, 0.2); color: var(--text-muted);">
+                <i class="ph ph-user"></i>
+            </div>
+            <div class="plan-name">Free</div>
+            <div class="plan-desc">Perfect for getting started</div>
+            <div class="plan-price">
+                <span class="price-currency">$</span>
+                <span class="price-amount">0</span>
+                <span class="price-period">/month</span>
+            </div>
+            <ul class="plan-features">
+                <li><i class="ph ph-check-circle check"></i> Access to 3 courses</li>
+                <li><i class="ph ph-check-circle check"></i> Basic quizzes</li>
+                <li><i class="ph ph-check-circle check"></i> Community access</li>
+                <li><i class="ph ph-x-circle x"></i> Certificates</li>
+                <li><i class="ph ph-x-circle x"></i> Priority support</li>
+                <li><i class="ph ph-x-circle x"></i> Offline downloads</li>
+            </ul>
+            <button class="plan-btn btn-outline" onclick="selectPlan('free')">Current Plan</button>
+        </div>
+
+        <!-- Pro Plan -->
+        <div class="pricing-card popular">
+            <div class="popular-badge">🔥 MOST POPULAR</div>
+            <div class="plan-icon"
+                style="background: linear-gradient(135deg, var(--primary), var(--purple)); color: white;">
+                <i class="ph ph-crown"></i>
+            </div>
+            <div class="plan-name">Pro</div>
+            <div class="plan-desc">For serious learners</div>
+            <div class="plan-price">
+                <span class="price-currency">$</span>
+                <span class="price-amount" id="pro-price">9.99</span>
+                <span class="price-period">/month</span>
+            </div>
+            <ul class="plan-features">
+                <li><i class="ph ph-check-circle check"></i> All courses unlocked</li>
+                <li><i class="ph ph-check-circle check"></i> Advanced quizzes</li>
+                <li><i class="ph ph-check-circle check"></i> Community access</li>
+                <li><i class="ph ph-check-circle check"></i> Verified certificates</li>
+                <li><i class="ph ph-check-circle check"></i> Priority support</li>
+                <li><i class="ph ph-x-circle x"></i> Team features</li>
+            </ul>
+            <button class="plan-btn btn-primary" onclick="selectPlan('pro')">Upgrade to Pro</button>
+        </div>
+
+        <!-- Enterprise Plan -->
+        <div class="pricing-card">
+            <div class="plan-icon" style="background: linear-gradient(135deg, var(--gold), #f97316); color: white;">
+                <i class="ph ph-buildings"></i>
+            </div>
+            <div class="plan-name">Enterprise</div>
+            <div class="plan-desc">For teams and organizations</div>
+            <div class="plan-price">
+                <span class="price-currency">$</span>
+                <span class="price-amount" id="enterprise-price">29.99</span>
+                <span class="price-period">/month</span>
+            </div>
+            <ul class="plan-features">
+                <li><i class="ph ph-check-circle check"></i> Everything in Pro</li>
+                <li><i class="ph ph-check-circle check"></i> Team management</li>
+                <li><i class="ph ph-check-circle check"></i> Analytics dashboard</li>
+                <li><i class="ph ph-check-circle check"></i> API access</li>
+                <li><i class="ph ph-check-circle check"></i> Dedicated support</li>
+                <li><i class="ph ph-check-circle check"></i> Custom branding</li>
+            </ul>
+            <button class="plan-btn btn-outline" onclick="selectPlan('enterprise')">Contact Sales</button>
+        </div>
+    </div>
+
+    <!-- Features -->
+    <section class="features-section">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="ph ph-shield-check"></i></div>
+                <div class="feature-title">Secure Payments</div>
+                <div class="feature-desc">256-bit SSL encryption for all transactions</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="ph ph-arrows-clockwise"></i></div>
+                <div class="feature-title">Money Back</div>
+                <div class="feature-desc">30-day money back guarantee, no questions</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="ph ph-x-circle"></i></div>
+                <div class="feature-title">Cancel Anytime</div>
+                <div class="feature-desc">No contracts, cancel with one click</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="ph ph-headset"></i></div>
+                <div class="feature-title">24/7 Support</div>
+                <div class="feature-desc">Get help whenever you need it</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Payment Methods -->
+    <section class="payment-methods">
+        <h3>ACCEPTED PAYMENT METHODS</h3>
+        <div class="payment-icons">
+            <span style="font-size: 32px;">💳</span>
+            <span style="font-weight: 700; font-size: 20px; color: #0070ba;">PayPal</span>
+            <span style="font-weight: 700; font-size: 20px; color: #635bff;">Stripe</span>
+            <span style="font-size: 32px;">🏦</span>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 Skillify. All rights reserved. | <a href="/privacy.html">Privacy Policy</a> | <a
+                href="/terms.html">Terms of Service</a></p>
+    </footer>
+
+    <script>
+        let billingPeriod = 'monthly';
+
+        function setBilling(period) {
+            billingPeriod = period;
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update prices
+            if (period === 'yearly') {
+                document.getElementById('pro-price').innerText = '7.99';
+                document.getElementById('enterprise-price').innerText = '23.99';
+            } else {
+                document.getElementById('pro-price').innerText = '9.99';
+                document.getElementById('enterprise-price').innerText = '29.99';
+            }
+        }
+
+        function selectPlan(plan) {
+            if (plan === 'free') {
+                alert('You are already on the Free plan!');
+                return;
+            }
+            if (plan === 'enterprise') {
+                window.location.href = 'mailto:sales@skillify.com?subject=Enterprise Plan Inquiry';
+                return;
+            }
+            // Redirect to checkout
+            window.location.href = `/checkout.html?plan=${plan}&billing=${billingPeriod}`;
+        }
+    </script>
+</body>
+
+</html>

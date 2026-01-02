@@ -1,0 +1,2512 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Skillify — Ultimate Learning Platform</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- External CSS -->
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/settings.css">
+
+  <!-- Security: DOMPurify for XSS Protection -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+
+  <!-- Dashboard Integration -->
+  <script src="js/dashboardSync.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/enhancedDashboard.js"></script>
+  <script src="js/certificates.js"></script>
+</head>
+
+<body>
+
+  <canvas id="confettiCanvas"></canvas>
+  <div id="overlay"
+    style="position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:95; display:none; backdrop-filter:blur(5px);"
+    onclick="toggleSidebar()"></div>
+
+  <button class="exit-focus-btn" onclick="toggleFocusMode()">
+    <i class="ph ph-x-circle" style="font-size:20px;"></i> Exit Focus
+  </button>
+
+  <div id="notesWidget" class="notes-widget">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+      <h3 style="margin:0; font-size:16px; font-weight:700;">Quick Notes</h3>
+      <i class="ph ph-x" style="cursor:pointer; color:var(--text-muted);" onclick="toggleNotes()"></i>
+    </div>
+    <textarea id="notesArea" placeholder="Type your ideas here... Auto-saved." oninput="saveNotes()"></textarea>
+  </div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-logo"><i class="ph ph-diamond"></i></div>
+      <div class="brand-text">Skillify</div>
+    </div>
+
+    <div class="pomo-widget">
+      <div
+        style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">
+        Focus Timer</div>
+      <div class="pomo-time" id="pomoDisplay">25:00</div>
+      <div class="pomo-controls">
+        <button class="pomo-btn" onclick="startPomo()" id="btnStart"><i class="ph ph-play"></i></button>
+        <button class="pomo-btn" onclick="resetPomo()"><i class="ph ph-arrow-counter-clockwise"></i></button>
+      </div>
+    </div>
+
+    <div class="nav-label">Main</div>
+    <div class="nav-item active" onclick="switchView('dashboard', this)"><i class="ph ph-squares-four"></i> Dashboard
+    </div>
+    <div class="nav-item" onclick="switchView('roadmap', this)"><i class="ph ph-git-branch"></i> Learning Path</div>
+    <div class="nav-item" onclick="switchView('analytics', this)"><i class="ph ph-chart-line-up"></i> Analytics</div>
+
+    <div class="nav-label">Learning</div>
+    <div class="nav-item" onclick="switchView('mycourses', this)"><i class="ph ph-monitor-play"></i> My Courses</div>
+    <div class="nav-item" onclick="switchView('challenges', this)"><i class="ph ph-trophy"></i> Challenges</div>
+    <div class="nav-item" onclick="switchView('certifications', this)"><i class="ph ph-certificate"></i> Certificates
+    </div>
+
+    <div class="nav-label">Tools</div>
+    <div class="nav-item" onclick="switchView('kanban', this)"><i class="ph ph-kanban"></i> Projects</div>
+    <div class="nav-item" onclick="switchView('calendar', this)"><i class="ph ph-calendar-blank"></i> Calendar</div>
+    <div class="nav-item" onclick="switchView('community', this)"><i class="ph ph-users-three"></i> Community</div>
+
+    <div class="nav-label">More</div>
+    <div class="nav-item" onclick="switchView('tools-guide', this)"><i class="ph ph-info"></i> Platform Guide</div>
+    <div class="nav-item" onclick="switchView('creator', this)"><i class="ph ph-user-circle"></i> About Founder</div>
+    <div class="nav-item" onclick="toggleMusic(this)"><i class="ph ph-headphones"></i> Focus Audio</div>
+    <div class="nav-item" onclick="switchView('profile', this)"><i class="ph ph-gear"></i> Settings</div>
+
+    <div class="nav-label">Account</div>
+    <div class="nav-item" onclick="window.location.href='/pricing.html'"
+      style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); border: 1px solid rgba(99, 102, 241, 0.2);">
+      <i class="ph ph-crown" style="color: var(--gold);"></i>
+      <span>Upgrade Plan</span>
+      <span id="currentPlan"
+        style="margin-left:auto; font-size:10px; background:var(--success); color:white; padding:2px 6px; border-radius:4px;">FREE</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='/privacy.html'"><i class="ph ph-shield-check"></i> Privacy
+      Policy</div>
+
+    <div class="level-card" id="levelCard">
+      <div class="level-header"><span id="levelText">Level 1</span><span style="color:var(--primary)" id="xpText">0 /
+          100 XP</span></div>
+      <div class="progress-track">
+        <div class="progress-fill" id="xpBar" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Logout Button -->
+    <div class="nav-item" id="logoutBtn" onclick="handleLogout()"
+      style="margin-top: 20px; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);">
+      <i class="ph ph-sign-out"></i> Logout
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="header">
+      <div style="display:flex; align-items:center; gap:20px;">
+        <button class="action-btn" style="display:none; border:none;" onclick="toggleSidebar()"><i
+            class="ph ph-list"></i></button>
+        <div style="position:relative;">
+          <i class="ph ph-magnifying-glass"
+            style="position:absolute; left:14px; top:13px; color:var(--text-muted); font-size:18px;"></i>
+          <input type="text" class="search-input" id="searchFilter" onkeyup="filterContent()"
+            placeholder="Search Platform...">
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div style="font-size:14px; font-weight:600; color:var(--text-muted); margin-right:10px;" id="dateDisplay">
+        </div>
+        <button class="action-btn" onclick="toggleFocusMode()" title="Focus Mode"><i
+            class="ph ph-corners-out"></i></button>
+        <button class="action-btn" onclick="toggleTheme()"><i class="ph ph-sun"></i></button>
+        <button class="action-btn" onclick="toggleNotes()" title="Quick Notes"><i class="ph ph-notepad"></i></button>
+
+        <div style="position:relative;">
+          <button class="action-btn" onclick="toggleNotif()">
+            <i class="ph ph-bell"></i>
+            <div class="notif-badge active" id="notifBadge"></div>
+          </button>
+          <div class="notif-menu" id="notifMenu">
+            <div class="notif-item" style="text-align:center; padding:20px; color:var(--text-muted);" id="emptyNotif">No
+              new notifications</div>
+          </div>
+        </div>
+
+        <div style="position:relative;">
+          <input type="file" id="avatarUpload" accept="image/*" style="display:none;" />
+          <button class="action-btn" id="headerProfileBtn" style="width:auto; padding:0 6px; gap:8px; overflow:hidden;"
+            title="Click to upload avatar">
+            <img id="headerUserAvatar" src=""
+              style="width:28px; height:28px; border-radius:8px; object-fit:cover; display:none;" alt="Avatar" />
+            <div id="headerUserInitials"
+              style="width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg, var(--primary), var(--accent)); display:flex; align-items:center; justify-content:center; color:white; font-size:12px; font-weight:700;">
+              AD</div>
+          </button>
+        </div>
+      </div>
+    </header>
+
+
+
+
+
+
+
+
+
+    <div id="view-dashboard" class="view-container active">
+      <div class="hero-platinum">
+        <div>
+          <span class="hero-tag">Weekly Insight</span>
+          <div class="hero-title" id="greetingMsg">Welcome back! ⚡</div>
+          <div class="hero-sub">Ready to start learning? Pick a course below.</div>
+        </div>
+        <div
+          style="width:120px; height:120px; background:conic-gradient(var(--primary), var(--accent), var(--purple)); border-radius:50%; filter:blur(30px); opacity:0.6;">
+        </div>
+      </div>
+
+      <div class="grid-stats">
+        <div class="stat-card" onclick="triggerConfetti()">
+          <div class="stat-icon" style="color:var(--primary)"><i class="ph ph-fire"></i></div>
+          <div class="stat-val" id="stat-streak">0</div>
+          <div class="stat-label">Day Streak</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="color:var(--accent)"><i class="ph ph-lightning"></i></div>
+          <div class="stat-val" id="stat-xp">0</div>
+          <div class="stat-label">Total XP</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="color:var(--purple)"><i class="ph ph-clock"></i></div>
+          <div class="stat-val" id="stat-focus">0h</div>
+          <div class="stat-label">Focus Time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="color:var(--gold)"><i class="ph ph-crown"></i></div>
+          <div class="stat-val">-</div>
+          <div class="stat-label">Global Rank</div>
+        </div>
+        <div class="stat-card" style="grid-column: span 2; padding: 16px;">
+          <div class="stat-icon" style="color:var(--primary)"><i class="ph ph-squares-four"></i></div>
+          <div class="stat-val" style="font-size: 18px;">Activity</div>
+          <div class="stat-label" style="font-size: 11px;">Last 90 days</div>
+          <div class="heatmap" id="heatmap" style="margin-top: 8px;"></div>
+        </div>
+      </div>
+
+      <div class="grid-layout">
+        <div>
+          <h3 style="font-size:20px; font-weight:700; margin-bottom:24px;">Active Learning</h3>
+          <div class="grid-courses" id="dashboardCourses">
+            <div class="course-card filter-item" onclick="window.location.href='web dev/web.html'">
+              <div class="course-inner">
+                <div class="course-icon"><i class="ph ph-code"></i></div>
+                <div class="course-title">Web Development</div>
+                <div class="course-desc">Build modern websites with HTML, CSS, JavaScript and popular frameworks.</div>
+                <div class="course-progress">
+                  <div class="course-progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="course-meta"><span>12 Modules</span><span>0% Complete</span></div>
+              </div>
+            </div>
+            <div class="course-card filter-item" onclick="window.location.href='web dev/game.html'">
+              <div class="course-inner">
+                <div class="course-badge badge-new">UPDATED</div>
+                <div class="course-icon"><i class="ph ph-game-controller"></i></div>
+                <div class="course-title">Game Development</div>
+                <div class="course-desc">Create 2D and 3D games with Unity and JavaScript game engines.</div>
+                <div class="course-progress">
+                  <div class="course-progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="course-meta"><span>14 Modules</span><span>0% Complete</span></div>
+              </div>
+            </div>
+            <div class="course-card filter-item" onclick="window.location.href='web dev/pan.html'">
+              <div class="course-inner">
+                <div class="course-icon"><i class="ph ph-code-block"></i></div>
+                <div class="course-title">Code Editor</div>
+                <div class="course-desc">Advanced code editor with syntax highlighting and live preview.</div>
+                <div class="course-progress">
+                  <div class="course-progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="course-meta"><span>11 Features</span><span>0% Complete</span></div>
+              </div>
+            </div>
+            <div class="course-card filter-item" onclick="window.location.href='web dev/design.html'">
+              <div class="course-inner">
+                <div class="course-badge badge-new">NEW</div>
+                <div class="course-icon"><i class="ph ph-paint-brush"></i></div>
+                <div class="course-title">UI/UX Design</div>
+                <div class="course-desc">Create beautiful interfaces and user experiences with modern design tools.
+                </div>
+                <div class="course-progress">
+                  <div class="course-progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="course-meta"><span>10 Modules</span><span>0% Complete</span></div>
+              </div>
+            </div>
+            <div class="course-card filter-item" onclick="window.location.href='work skills/cv.html'">
+              <div class="course-inner">
+                <div class="course-badge badge-hot">HOT</div>
+                <div class="course-icon"><i class="ph ph-user"></i></div>
+                <div class="course-title">CV Builder</div>
+                <div class="course-desc">Create professional resumes and CVs with modern templates.</div>
+                <div class="course-progress">
+                  <div class="course-progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="course-meta"><span>15 Templates</span><span>0% Complete</span></div>
+              </div>
+            </div>
+
+            <div class="course-card filter-item" onclick="window.location.href='web dev/management.html'">
+              <div class="course-inner">
+                <div class="course-icon"><i class="ph ph-briefcase"></i></div>
+                <div class="course-title">Project Management</div>
+                <div class="course-desc">Master Agile, Scrum, and modern project management methodologies.</div>
+                <div class="course-progress">
+                  <div class="course-progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="course-meta"><span>8 Modules</span><span>0% Complete</span></div>
+              </div>
+            </div>
+            <div class="course-card filter-item" onclick="window.location.href='web dev/ai.html'">
+              <div class="course-inner">
+                <div class="course-badge badge-hot">AI</div>
+                <div class="course-icon"><i class="ph ph-brain"></i></div>
+                <div class="course-title">AI & Data Science</div>
+                <div class="course-desc">Master Machine Learning, LLMs, and Data Analysis pipelines.</div>
+                <div class="course-progress">
+                  <div class="course-progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="course-meta"><span>12 Modules</span><span>0% Complete</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    </div>
+    </div>
+
+    <div id="view-playground" class="view-container">
+      <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+        <h2>Interactive Playground</h2>
+        <button class="action-btn active" onclick="triggerConfetti()"><i class="ph ph-play"></i> Run Code</button>
+      </div>
+      <div class="ide-container">
+        <div class="ide-toolbar">
+          <div style="width:12px; height:12px; border-radius:50%; background:#ef4444"></div>
+          <div style="width:12px; height:12px; border-radius:50%; background:#fbbf24"></div>
+          <div style="width:12px; height:12px; border-radius:50%; background:#10b981"></div>
+          <span style="margin-left:10px; font-size:12px; color:#666">script.js</span>
+          <div style="margin-left:auto; display:flex; gap:10px;">
+            <button class="pomo-btn" style="padding:4px 8px; font-size:10px;" onclick="editor.copy()">Copy</button>
+            <button class="pomo-btn" style="padding:4px 8px; font-size:10px;" onclick="editor.clear()">Clear</button>
+          </div>
+        </div>
+        <div class="ide-body editor-wrapper">
+          <div class="line-numbers" id="lineNumbers">
+            <div>1</div>
+          </div>
+          <textarea class="ide-editor" id="codeEditor" spellcheck="false" oninput="editor.updateLines()">
+// Welcome to Skillify JS Playground
+function hello() {
+  console.log("Hello World!");
+}
+hello();</textarea>
+        </div>
+        <div class="ide-preview" id="consoleOutput"
+          style="background:#1e1e1e; color:#ccc; font-family:monospace; font-size:12px; overflow-y:auto; border-left:1px solid #333;">
+          <div style="color:#666; padding-bottom:10px; border-bottom:1px solid #333; margin-bottom:10px;">// Console
+            Output</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-roadmap" class="view-container">
+      <h2 style="text-align:center; margin-bottom:40px;">Your Learning Path</h2>
+
+      <!-- Learning Path Map -->
+      <div class="roadmap-map">
+        <div class="roadmap-line"></div>
+
+        <!-- Web Development - Current -->
+        <div class="roadmap-node current" id="node-web-dev" onclick="window.location.href='web dev/web.html'">
+          <div class="node-icon">
+            <i class="ph ph-code"></i>
+          </div>
+          <div class="node-content">
+            <h4>Web Development</h4>
+            <p>HTML, CSS, JavaScript, React</p>
+            <div class="node-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%"></div>
+              </div>
+              <span>0% Complete</span>
+            </div>
+          </div>
+          <div class="node-badge current">
+            <i class="ph ph-play"></i>
+          </div>
+        </div>
+
+        <!-- Game Development - Locked -->
+        <div class="roadmap-node locked" id="node-game-dev" onclick="showUpgradeModal()">
+          <div class="node-icon">
+            <i class="ph ph-game-controller"></i>
+          </div>
+          <div class="node-content">
+            <h4>Game Development</h4>
+            <p>Unity, JavaScript, 2D/3D Games</p>
+            <div class="node-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%"></div>
+              </div>
+              <span>0% Complete</span>
+            </div>
+          </div>
+          <div class="node-badge locked">
+            <i class="ph ph-lock"></i>
+          </div>
+        </div>
+
+        <!-- Code Editor - Locked -->
+        <div class="roadmap-node locked" id="node-code-editor" onclick="window.location.href='web dev/pan.html'">
+          <div class="node-icon">
+            <i class="ph ph-code-block"></i>
+          </div>
+          <div class="node-content">
+            <h4>Code Editor</h4>
+            <p>Syntax Highlighting, Live Preview</p>
+            <div class="node-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%"></div>
+              </div>
+              <span>0% Complete</span>
+            </div>
+          </div>
+          <div class="node-badge locked">
+            <i class="ph ph-lock"></i>
+          </div>
+        </div>
+
+        <!-- UI/UX Design - Locked -->
+        <div class="roadmap-node locked" id="node-ui-ux" onclick="showUpgradeModal()">
+          <div class="node-icon">
+            <i class="ph ph-paint-brush"></i>
+          </div>
+          <div class="node-content">
+            <h4>UI/UX Design</h4>
+            <p>Figma, Adobe XD, Prototyping</p>
+            <div class="node-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%"></div>
+              </div>
+              <span>0% Complete</span>
+            </div>
+          </div>
+          <div class="node-badge locked">
+            <i class="ph ph-lock"></i>
+          </div>
+        </div>
+
+        <!-- CV Builder - Locked -->
+        <div class="roadmap-node locked" id="node-cv-builder" onclick="window.location.href='work skills/cv.html'">
+          <div class="node-icon">
+            <i class="ph ph-user"></i>
+          </div>
+          <div class="node-content">
+            <h4>CV Builder</h4>
+            <p>Resume Templates, Export Options</p>
+            <div class="node-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%"></div>
+              </div>
+              <span>0% Complete</span>
+            </div>
+          </div>
+          <div class="node-badge locked">
+            <i class="ph ph-lock"></i>
+          </div>
+        </div>
+
+        <!-- Cyber Security - Locked -->
+        <div class="roadmap-node locked" id="node-cyber-security" onclick="showUpgradeModal()">
+          <div class="node-icon">
+            <i class="ph ph-shield-check"></i>
+          </div>
+          <div class="node-content">
+            <h4>Cyber Security</h4>
+            <p>Ethical Hacking, Network Security</p>
+            <div class="node-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%"></div>
+              </div>
+              <span>0% Complete</span>
+            </div>
+          </div>
+          <div class="node-badge locked">
+            <i class="ph ph-lock"></i>
+          </div>
+        </div>
+
+        <!-- AI/ML - Locked -->
+        <div class="roadmap-node locked" id="node-ai-ml" onclick="showUpgradeModal()">
+          <div class="node-icon">
+            <i class="ph ph-cpu"></i>
+          </div>
+          <div class="node-content">
+            <h4>AI & Machine Learning</h4>
+            <p>Neural Networks, Deep Learning</p>
+            <div class="node-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%"></div>
+              </div>
+              <span>0% Complete</span>
+            </div>
+          </div>
+          <div class="node-badge locked">
+            <i class="ph ph-lock"></i>
+          </div>
+        </div>
+
+        <!-- Blockchain - Locked -->
+        <div class="roadmap-node locked" id="node-blockchain" onclick="showUpgradeModal()">
+          <div class="node-icon">
+            <i class="ph ph-cube"></i>
+          </div>
+          <div class="node-content">
+            <h4>Blockchain</h4>
+            <p>Smart Contracts, Web3, DApps</p>
+            <div class="node-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%"></div>
+              </div>
+              <span>0% Complete</span>
+            </div>
+          </div>
+          <div class="node-badge locked">
+            <i class="ph ph-lock"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-challenges" class="view-container">
+      <h2 style="margin-bottom:24px;">Weekly Challenges</h2>
+      <div class="grid-courses">
+        <div class="challenge-card">
+          <span class="challenge-tag tag-easy">Easy</span>
+          <h3>Palindrome Checker</h3>
+          <p style="font-size:13px; color:var(--text-muted);">Write a function that checks if a string is a palindrome.
+          </p>
+          <button class="pomo-btn" onclick="switchView('playground', null)">Start Coding</button>
+        </div>
+        <div class="challenge-card">
+          <span class="challenge-tag tag-easy"
+            style="background:rgba(251, 191, 36, 0.15); color:var(--gold);">Medium</span>
+          <h3>API Data Fetcher</h3>
+          <p style="font-size:13px; color:var(--text-muted);">Fetch user data from a public API and display it in a
+            list.</p>
+          <button class="pomo-btn" onclick="switchView('playground', null)">Start Coding</button>
+        </div>
+        <div class="challenge-card">
+          <span class="challenge-tag tag-hard">Hard</span>
+          <h3>Algorithm Optimization</h3>
+          <p style="font-size:13px; color:var(--text-muted);">Refactor a bubble sort algorithm to be more efficient.</p>
+          <button class="pomo-btn" onclick="switchView('playground', null)">Start Coding</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-community" class="view-container">
+      <h2 style="margin-bottom:24px;">Community Hub</h2>
+      <div class="grid-layout">
+        <div>
+          <div class="post-card">
+            <div class="post-header">
+              <div class="post-av" style="background:var(--primary)">AD</div>
+              <div>
+                <div style="font-weight:700; font-size:14px;">Alex Doe</div>
+                <div style="font-size:11px; color:var(--text-muted);">Just now</div>
+              </div>
+            </div>
+            <textarea id="postInput"
+              style="width:100%; background:transparent; border:none; color:white; resize:none; font-family:inherit;"
+              placeholder="What are you working on today?"></textarea>
+            <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+              <button
+                style="background:var(--primary); color:white; border:none; padding:8px 20px; border-radius:8px; font-weight:600; cursor:pointer;"
+                onclick="community.post()">Post</button>
+            </div>
+          </div>
+
+          <div id="communityFeedList">
+            <!-- Dynamic Posts from API -->
+          </div>
+        </div>
+
+        <div>
+          <div class="widget-panel">
+            <div class="widget-head">Trending Topics</div>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              <span
+                style="background:rgba(255,255,255,0.05); padding:6px 12px; border-radius:20px; font-size:12px;">#ReactJS</span>
+              <span
+                style="background:rgba(255,255,255,0.05); padding:6px 12px; border-radius:20px; font-size:12px;">#100DaysOfCode</span>
+              <span
+                style="background:rgba(255,255,255,0.05); padding:6px 12px; border-radius:20px; font-size:12px;">#WebDev</span>
+              <span
+                style="background:rgba(255,255,255,0.05); padding:6px 12px; border-radius:20px; font-size:12px;">#Career</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-mycourses" class="view-container">
+      <h2 style="margin-bottom:24px;">Course Library</h2>
+      <div class="grid-courses">
+        <div class="course-card filter-item">
+          <div class="course-inner">
+            <div class="course-icon" style="color:var(--primary);"><i class="ph ph-code"></i></div>
+            <div class="course-title">Web Development</div>
+            <div class="course-desc">Fullstack mastery with MERN stack.</div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:0%;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="course-card filter-item">
+          <div class="course-inner">
+            <div class="course-icon" style="color:var(--accent);"><i class="ph ph-paint-brush"></i></div>
+            <div class="course-title">Advanced UI Design</div>
+            <div class="course-desc">Design systems and prototyping.</div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:0%; background:var(--accent)"></div>
+            </div>
+          </div>
+        </div>
+        <div class="course-card filter-item">
+          <div class="course-inner">
+            <div class="course-icon" style="color:var(--success);"><i class="ph ph-database"></i></div>
+            <div class="course-title">SQL & Databases</div>
+            <div class="course-desc">Master PostgreSQL and data modeling.</div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:0%; background:var(--success)"></div>
+            </div>
+          </div>
+        </div>
+        <div class="course-card filter-item">
+          <div class="course-inner">
+            <div class="course-icon" style="color:var(--danger);"><i class="ph ph-shield-check"></i></div>
+            <div class="course-title">Ethical Hacking</div>
+            <div class="course-desc">Penetration testing basics.</div>
+            <div class="course-meta"><span>New</span><span>Start</span></div>
+          </div>
+        </div>
+        <div class="course-card filter-item">
+          <div class="course-inner">
+            <div class="course-icon" style="color:var(--gold);"><i class="ph ph-robot"></i></div>
+            <div class="course-title">Machine Learning</div>
+            <div class="course-desc">Python scikit-learn and logic.</div>
+            <div class="course-meta"><span>Pro</span><span>Locked</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-analytics" class="view-container">
+      <h2 style="margin-bottom:24px;">Performance Analytics</h2>
+      <div class="grid-layout">
+        <div class="widget-panel" style="grid-column: span 2;">
+          <h3 style="margin-bottom:15px; color:var(--text-muted);">Learning Activity (Hours)</h3>
+          <div style="height:300px;">
+            <canvas id="learningLine"></canvas>
+          </div>
+        </div>
+        <div class="widget-panel">
+          <h3 style="margin-bottom:15px; color:var(--text-muted);">Skill Distribution</h3>
+          <div style="height:250px; display:flex; align-items:center; justify-content:center;">
+            <canvas id="skillRadar"></canvas>
+          </div>
+        </div>
+        <div class="widget-panel">
+          <h3 style="margin-bottom:15px; color:var(--text-muted);">Task Completion</h3>
+          <div style="height:250px; display:flex; align-items:center; justify-content:center;">
+            <canvas id="taskDoughnut"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-schedule" class="view-container">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 id="currentMonthYear">December 2024</h2>
+        <div style="display:flex; gap:10px;">
+          <button class="action-btn" onclick="calendar.prevMonth()"><i class="ph ph-caret-left"></i></button>
+          <button class="action-btn" onclick="calendar.today()">Today</button>
+          <button class="action-btn" onclick="calendar.nextMonth()"><i class="ph ph-caret-right"></i></button>
+        </div>
+      </div>
+
+      <div id="calendarContainer">
+        <div class="cal-grid" id="calGrid">
+          <!-- JS Generated -->
+        </div>
+      </div>
+    </div>
+
+    <div id="view-certifications" class="view-container">
+      <h2 style="margin-bottom:24px;">Your Certificates</h2>
+
+      <!-- Earned Certificates -->
+      <div class="widget-panel" style="margin-bottom:24px;">
+        <h3 style="margin-bottom:20px;"><i class="ph ph-medal" style="margin-right:8px; color:var(--gold);"></i> Earned
+          Certificates</h3>
+        <div id="earnedCertificates" class="cert-grid">
+          <!-- Will be populated by JS based on completed courses -->
+          <div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text-muted);">
+            <i class="ph ph-certificate" style="font-size:48px; opacity:0.3; margin-bottom:16px;"></i>
+            <p>Complete courses to earn certificates!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Available Certificates -->
+      <div class="widget-panel">
+        <h3 style="margin-bottom:20px;"><i class="ph ph-graduation-cap" style="margin-right:8px;"></i> Available
+          Certificates</h3>
+        <div class="cert-grid">
+          <!-- Web Development -->
+          <div class="cert-item" id="cert-web" onclick="viewCertificate('web')">
+            <div class="cert-icon" style="color:var(--primary);"><i class="ph ph-code"></i></div>
+            <h4>Web Development</h4>
+            <p style="font-size:12px; color:var(--text-muted); margin:10px 0;">Skillify Certificate</p>
+            <div class="progress-track" style="height:4px; margin-top:12px;">
+              <div class="progress-fill" id="cert-web-progress" style="width:0%; background:var(--primary);"></div>
+            </div>
+            <div style="font-size:10px; color:var(--text-muted); margin-top:8px;" id="cert-web-status">0/9 Videos</div>
+          </div>
+
+          <!-- Game Development -->
+          <div class="cert-item" id="cert-game" onclick="viewCertificate('game')">
+            <div class="cert-icon" style="color:var(--purple);"><i class="ph ph-game-controller"></i></div>
+            <h4>Game Development</h4>
+            <p style="font-size:12px; color:var(--text-muted); margin:10px 0;">Skillify Certificate</p>
+            <div class="progress-track" style="height:4px; margin-top:12px;">
+              <div class="progress-fill" id="cert-game-progress" style="width:0%; background:var(--purple);"></div>
+            </div>
+            <div style="font-size:10px; color:var(--text-muted); margin-top:8px;" id="cert-game-status">0/6 Videos</div>
+          </div>
+
+          <!-- UI/UX Design -->
+          <div class="cert-item" id="cert-design" onclick="viewCertificate('design')">
+            <div class="cert-icon" style="color:var(--accent);"><i class="ph ph-paint-brush"></i></div>
+            <h4>UI/UX Design</h4>
+            <p style="font-size:12px; color:var(--text-muted); margin:10px 0;">Skillify Certificate</p>
+            <div class="progress-track" style="height:4px; margin-top:12px;">
+              <div class="progress-fill" id="cert-design-progress" style="width:0%; background:var(--accent);"></div>
+            </div>
+            <div style="font-size:10px; color:var(--text-muted); margin-top:8px;" id="cert-design-status">0/6 Videos
+            </div>
+          </div>
+
+          <!-- AI & Data Science -->
+          <div class="cert-item" id="cert-ai" onclick="viewCertificate('ai')">
+            <div class="cert-icon" style="color:var(--gold);"><i class="ph ph-brain"></i></div>
+            <h4>AI & Data Science</h4>
+            <p style="font-size:12px; color:var(--text-muted); margin:10px 0;">Skillify Certificate</p>
+            <div class="progress-track" style="height:4px; margin-top:12px;">
+              <div class="progress-fill" id="cert-ai-progress" style="width:0%; background:var(--gold);"></div>
+            </div>
+            <div style="font-size:10px; color:var(--text-muted); margin-top:8px;" id="cert-ai-status">0/6 Videos</div>
+          </div>
+
+          <!-- Project Management -->
+          <div class="cert-item" id="cert-management" onclick="viewCertificate('management')">
+            <div class="cert-icon" style="color:var(--success);"><i class="ph ph-briefcase"></i></div>
+            <h4>Project Management</h4>
+            <p style="font-size:12px; color:var(--text-muted); margin:10px 0;">Skillify Certificate</p>
+            <div class="progress-track" style="height:4px; margin-top:12px;">
+              <div class="progress-fill" id="cert-management-progress" style="width:0%; background:var(--success);">
+              </div>
+            </div>
+            <div style="font-size:10px; color:var(--text-muted); margin-top:8px;" id="cert-management-status">0/6 Videos
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: CREATOR (About Founder) -->
+    <div id="view-creator" class="view-container">
+      <!-- Founder Hero -->
+      <div class="hero-platinum"
+        style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); border:1px solid var(--border);">
+        <div style="display:flex; align-items:center; gap:24px; flex-wrap:wrap;">
+          <div
+            style="width:100px; height:100px; background:linear-gradient(135deg, var(--primary), var(--purple)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:40px; font-weight:700; color:white;">
+            YA</div>
+          <div style="flex:1;">
+            <h2 style="margin-bottom:8px; font-size:28px;">Yousef Amr</h2>
+            <p style="color:var(--text-muted); font-size:16px; margin-bottom:12px;">Founder & Lead Developer of Skillify
+            </p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <span class="hero-tag"
+                style="background:linear-gradient(135deg, var(--primary), var(--purple)); color:white; border:none;">FOUNDER</span>
+              <span class="hero-tag"
+                style="background:rgba(16, 185, 129, 0.1); color:var(--success); border-color:rgba(16, 185, 129, 0.2);">Full-Stack
+                Developer</span>
+              <span class="hero-tag">🇪🇬 Egypt</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- About Section -->
+      <div class="grid-layout" style="grid-template-columns: 2fr 1fr; gap:24px; margin-top:24px;">
+        <div class="widget-panel">
+          <h3 style="margin-bottom:20px;"><i class="ph ph-user" style="margin-right:8px;"></i> About Me</h3>
+          <p style="color:var(--text-muted); line-height:1.8; font-size:15px;">
+            Hi! I'm Yousef Amr, a passionate software developer from Egypt. I created Skillify with a vision to make
+            quality tech education accessible to everyone.
+          </p>
+          <p style="color:var(--text-muted); line-height:1.8; font-size:15px; margin-top:16px;">
+            With experience in full-stack development, I specialize in building modern web applications using
+            technologies like React, Node.js, and more. My goal is to help aspiring developers learn and grow through
+            this platform.
+          </p>
+          <p style="color:var(--text-muted); line-height:1.8; font-size:15px; margin-top:16px;">
+            Skillify is more than just a learning platform - it's a community where learners can track their progress,
+            earn achievements, and connect with fellow developers.
+          </p>
+        </div>
+
+        <div class="widget-panel">
+          <h3 style="margin-bottom:20px;"><i class="ph ph-code" style="margin-right:8px;"></i> Skills</h3>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            <span
+              style="padding:8px 16px; background:rgba(99, 102, 241, 0.1); border-radius:20px; font-size:13px; color:var(--primary);">JavaScript</span>
+            <span
+              style="padding:8px 16px; background:rgba(34, 211, 238, 0.1); border-radius:20px; font-size:13px; color:var(--accent);">React</span>
+            <span
+              style="padding:8px 16px; background:rgba(16, 185, 129, 0.1); border-radius:20px; font-size:13px; color:var(--success);">Node.js</span>
+            <span
+              style="padding:8px 16px; background:rgba(168, 85, 247, 0.1); border-radius:20px; font-size:13px; color:var(--purple);">HTML/CSS</span>
+            <span
+              style="padding:8px 16px; background:rgba(251, 191, 36, 0.1); border-radius:20px; font-size:13px; color:var(--gold);">Python</span>
+            <span
+              style="padding:8px 16px; background:rgba(239, 68, 68, 0.1); border-radius:20px; font-size:13px; color:#ef4444;">SQL</span>
+            <span
+              style="padding:8px 16px; background:rgba(99, 102, 241, 0.1); border-radius:20px; font-size:13px; color:var(--primary);">Express.js</span>
+            <span
+              style="padding:8px 16px; background:rgba(34, 211, 238, 0.1); border-radius:20px; font-size:13px; color:var(--accent);">Git</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connect Section -->
+      <div class="widget-panel" style="margin-top:24px;">
+        <h3 style="margin-bottom:20px;"><i class="ph ph-link" style="margin-right:8px;"></i> Connect With Me</h3>
+        <div style="display:flex; gap:16px; flex-wrap:wrap;">
+          <a href="https://github.com/yousef-amr" target="_blank"
+            style="display:flex; align-items:center; gap:10px; padding:12px 20px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:12px; text-decoration:none; color:var(--text); transition:0.2s;">
+            <i class="ph ph-github-logo" style="font-size:24px;"></i>
+            <span>GitHub</span>
+          </a>
+          <a href="https://linkedin.com/in/yousef-amr" target="_blank"
+            style="display:flex; align-items:center; gap:10px; padding:12px 20px; background:rgba(10, 102, 194, 0.1); border:1px solid rgba(10, 102, 194, 0.3); border-radius:12px; text-decoration:none; color:#0a66c2; transition:0.2s;">
+            <i class="ph ph-linkedin-logo" style="font-size:24px;"></i>
+            <span>LinkedIn</span>
+          </a>
+          <a href="mailto:yousef@skillify.com"
+            style="display:flex; align-items:center; gap:10px; padding:12px 20px; background:rgba(99, 102, 241, 0.1); border:1px solid rgba(99, 102, 241, 0.3); border-radius:12px; text-decoration:none; color:var(--primary); transition:0.2s;">
+            <i class="ph ph-envelope" style="font-size:24px;"></i>
+            <span>Email</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Vision Section -->
+      <div class="widget-panel"
+        style="margin-top:24px; background:linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(168, 85, 247, 0.05));">
+        <h3 style="margin-bottom:20px;"><i class="ph ph-lightbulb" style="margin-right:8px; color:var(--gold);"></i>
+          Vision for Skillify</h3>
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:20px;">
+          <div style="text-align:center; padding:24px;">
+            <i class="ph ph-graduation-cap" style="font-size:48px; color:var(--primary); margin-bottom:12px;"></i>
+            <h4 style="margin-bottom:8px;">Quality Education</h4>
+            <p style="font-size:13px; color:var(--text-muted);">Free, high-quality tech courses for everyone</p>
+          </div>
+          <div style="text-align:center; padding:24px;">
+            <i class="ph ph-game-controller" style="font-size:48px; color:var(--purple); margin-bottom:12px;"></i>
+            <h4 style="margin-bottom:8px;">Gamified Learning</h4>
+            <p style="font-size:13px; color:var(--text-muted);">XP, levels, and achievements to keep you motivated</p>
+          </div>
+          <div style="text-align:center; padding:24px;">
+            <i class="ph ph-users-three" style="font-size:48px; color:var(--success); margin-bottom:12px;"></i>
+            <h4 style="margin-bottom:8px;">Community</h4>
+            <p style="font-size:13px; color:var(--text-muted);">Connect with fellow learners and grow together</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: KANBAN (PROJECTS) -->
+    <div id="view-kanban" class="view-container">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <h2>Project Tracker</h2>
+        <button class="action-btn active" onclick="window.kanban.addTask()"><i class="ph ph-plus"></i> Add Task</button>
+      </div>
+      <div class="kanban-board">
+        <div class="kanban-col">
+          <div class="kanban-header">
+            <span>To Do</span>
+            <span class="kanban-count">0</span>
+          </div>
+          <div class="kanban-list" id="kanban-todo" ondrop="window.kanban.drop(event, 'todo')"
+            ondragover="window.kanban.allowDrop(event)"></div>
+        </div>
+        <div class="kanban-col">
+          <div class="kanban-header" style="border-top-color:var(--accent)">
+            <span>In Progress</span>
+            <span class="kanban-count">0</span>
+          </div>
+          <div class="kanban-list" id="kanban-doing" ondrop="window.kanban.drop(event, 'doing')"
+            ondragover="window.kanban.allowDrop(event)"></div>
+        </div>
+        <div class="kanban-col">
+          <div class="kanban-header" style="border-top-color:var(--success)">
+            <span>Done</span>
+            <span class="kanban-count">0</span>
+          </div>
+          <div class="kanban-list" id="kanban-done" ondrop="window.kanban.drop(event, 'done')"
+            ondragover="window.kanban.allowDrop(event)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: PLATFORM GUIDE -->
+    <div id="view-tools-guide" class="view-container">
+      <h2 style="margin-bottom:24px;">Platform Guide</h2>
+      <div class="hero-platinum">
+        <div>
+          <div class="hero-title">Welcome to Skillify 2.0</div>
+          <div class="hero-sub">Master your workflow with our new tools.</div>
+        </div>
+      </div>
+
+      <div class="grid-courses" style="margin-top:20px;">
+        <!-- Kanban Guide -->
+        <div class="course-card">
+          <div class="course-inner">
+            <div class="course-icon" style="color:var(--accent)"><i class="ph ph-kanban"></i></div>
+            <div class="course-title">Project Tracker</div>
+            <div class="course-desc">
+              <ul style="padding-left:14px; margin:0;">
+                <li>Drag & Drop tasks between columns.</li>
+                <li>Add tags (Frontend, Backend, Bug).</li>
+                <li>Earn 50 XP for every completed task.</li>
+                <li>Data is saved automatically.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- IDE Guide -->
+        <div class="course-card">
+          <div class="course-inner">
+            <div class="course-icon" style="color:var(--primary)"><i class="ph ph-code"></i></div>
+            <div class="course-title">Integrated IDE</div>
+            <div class="course-desc">
+              <ul style="padding-left:14px; margin:0;">
+                <li>Write HTML/CSS/JS in the browser.</li>
+                <li>Live Preview of your code.</li>
+                <li>Perfect for quick experiments.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gamification Guide -->
+        <div class="course-card">
+          <div class="course-inner">
+            <div class="course-icon" style="color:var(--gold)"><i class="ph ph-trophy"></i></div>
+            <div class="course-title">Gamification System</div>
+            <div class="course-desc">
+              <ul style="padding-left:14px; margin:0;">
+                <li>Earn XP for tasks and focus sessions.</li>
+                <li>Level up to unlock badges.</li>
+                <li>Compete on the leaderboard (Coming Soon).</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Music Guide -->
+        <div class="course-card">
+          <div class="course-inner">
+            <div class="course-icon" style="color:var(--success)"><i class="ph ph-music-note"></i></div>
+            <div class="course-title">Lofi Focus Player</div>
+            <div class="course-desc">
+              <ul style="padding-left:14px; margin:0;">
+                <li>Curated Lofi beats for studying.</li>
+                <li>Loop mode enabled by default.</li>
+                <li>Controls persist across views.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: SETTINGS (PROFILE) -->
+    <div id="view-profile" class="view-container">
+      <h2 style="margin-bottom:24px;">Settings</h2>
+
+      <!-- Settings Navigation Tabs -->
+      <div style="display:flex; gap:8px; margin-bottom:30px; flex-wrap:wrap;">
+        <button class="settings-tab active" onclick="switchSettingsTab('profile', this)">
+          <i class="ph ph-user"></i> Profile
+        </button>
+        <button class="settings-tab" onclick="switchSettingsTab('security', this)">
+          <i class="ph ph-shield"></i> Security
+        </button>
+        <button class="settings-tab" onclick="switchSettingsTab('notifications', this)">
+          <i class="ph ph-bell"></i> Notifications
+        </button>
+        <button class="settings-tab" onclick="switchSettingsTab('appearance', this)">
+          <i class="ph ph-paint-brush"></i> Appearance
+        </button>
+        <button class="settings-tab" onclick="switchSettingsTab('billing', this)">
+          <i class="ph ph-credit-card"></i> Billing
+        </button>
+      </div>
+
+      <!-- PROFILE SETTINGS -->
+      <div id="settings-profile" class="settings-section active">
+        <div class="grid-layout" style="grid-template-columns: 1fr 2fr; gap: 30px;">
+          <!-- Avatar Section -->
+          <div class="widget-panel" style="text-align:center;">
+            <div id="settingsAvatar"
+              style="width:120px; height:120px; margin:0 auto 20px; border-radius:50%; background:linear-gradient(135deg, var(--primary), var(--purple)); display:flex; align-items:center; justify-content:center; font-size:48px; font-weight:700; color:white; cursor:pointer; position:relative; overflow:hidden;"
+              onclick="document.getElementById('avatarInput').click()">
+              <span id="settingsAvatarText">AD</span>
+              <img id="settingsAvatarImg" style="display:none; width:100%; height:100%; object-fit:cover;" />
+              <div
+                style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.7); padding:8px; font-size:12px;">
+                <i class="ph ph-camera"></i> Change
+              </div>
+            </div>
+            <input type="file" id="avatarInput" accept="image/*" style="display:none"
+              onchange="handleAvatarUpload(this)" />
+            <h3 id="settingsUsername" style="margin-bottom:5px;">Loading...</h3>
+            <p style="color:var(--text-muted); font-size:13px;" id="settingsEmail">Loading...</p>
+            <div style="margin-top:15px; display:flex; gap:8px; justify-content:center;">
+              <span class="hero-tag" id="settingsPlan">FREE</span>
+              <span class="hero-tag"
+                style="background:rgba(16, 185, 129, 0.1); color:var(--success); border-color:rgba(16, 185, 129, 0.2);"
+                id="settingsLevel">Level 1</span>
+            </div>
+          </div>
+
+          <!-- Profile Form -->
+          <div class="widget-panel">
+            <h3 style="margin-bottom:20px;">Profile Information</h3>
+            <form id="profileForm" onsubmit="saveProfile(event)">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                <div>
+                  <label
+                    style="display:block; font-size:12px; margin-bottom:8px; color:var(--text-muted);">Username</label>
+                  <input type="text" id="inputUsername" class="search-input" style="width:100%;"
+                    placeholder="Your username" />
+                </div>
+                <div>
+                  <label
+                    style="display:block; font-size:12px; margin-bottom:8px; color:var(--text-muted);">Email</label>
+                  <input type="email" id="inputEmail" class="search-input" style="width:100%;"
+                    placeholder="your@email.com" readonly />
+                </div>
+              </div>
+              <div style="margin-top:20px;">
+                <label style="display:block; font-size:12px; margin-bottom:8px; color:var(--text-muted);">Bio</label>
+                <textarea id="inputBio" class="search-input" style="width:100%; height:80px; resize:none;"
+                  placeholder="Tell us about yourself..."></textarea>
+              </div>
+              <div style="margin-top:20px; display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                <div>
+                  <label
+                    style="display:block; font-size:12px; margin-bottom:8px; color:var(--text-muted);">Location</label>
+                  <input type="text" id="inputLocation" class="search-input" style="width:100%;"
+                    placeholder="City, Country" />
+                </div>
+                <div>
+                  <label
+                    style="display:block; font-size:12px; margin-bottom:8px; color:var(--text-muted);">Website</label>
+                  <input type="url" id="inputWebsite" class="search-input" style="width:100%;"
+                    placeholder="https://yoursite.com" />
+                </div>
+              </div>
+              <button type="submit" class="pomo-btn active" style="margin-top:25px;">
+                <i class="ph ph-check"></i> Save Changes
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="widget-panel" style="margin-top:24px;">
+          <h3 style="margin-bottom:20px;">Your Stats</h3>
+          <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:16px;">
+            <div style="text-align:center; padding:20px; background:rgba(255,255,255,0.03); border-radius:12px;">
+              <div style="font-size:28px; font-weight:800; color:var(--primary);" id="statTotalXP">0</div>
+              <div style="font-size:12px; color:var(--text-muted);">Total XP</div>
+            </div>
+            <div style="text-align:center; padding:20px; background:rgba(255,255,255,0.03); border-radius:12px;">
+              <div style="font-size:28px; font-weight:800; color:var(--accent);" id="statStreak">0</div>
+              <div style="font-size:12px; color:var(--text-muted);">Day Streak</div>
+            </div>
+            <div style="text-align:center; padding:20px; background:rgba(255,255,255,0.03); border-radius:12px;">
+              <div style="font-size:28px; font-weight:800; color:var(--purple);" id="statVideos">0</div>
+              <div style="font-size:12px; color:var(--text-muted);">Videos Completed</div>
+            </div>
+            <div style="text-align:center; padding:20px; background:rgba(255,255,255,0.03); border-radius:12px;">
+              <div style="font-size:28px; font-weight:800; color:var(--success);" id="statQuizzes">0</div>
+              <div style="font-size:12px; color:var(--text-muted);">Quizzes Passed</div>
+            </div>
+            <div style="text-align:center; padding:20px; background:rgba(255,255,255,0.03); border-radius:12px;">
+              <div style="font-size:28px; font-weight:800; color:var(--gold);" id="statCerts">0</div>
+              <div style="font-size:12px; color:var(--text-muted);">Certificates</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECURITY SETTINGS -->
+      <div id="settings-security" class="settings-section">
+        <div class="widget-panel">
+          <h3 style="margin-bottom:20px;"><i class="ph ph-lock" style="margin-right:8px;"></i> Password</h3>
+          <form id="passwordForm" onsubmit="changePassword(event)">
+            <div style="max-width:400px;">
+              <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:12px; margin-bottom:8px; color:var(--text-muted);">Current
+                  Password</label>
+                <input type="password" id="currentPassword" class="search-input" style="width:100%;"
+                  placeholder="Enter current password" />
+              </div>
+              <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:12px; margin-bottom:8px; color:var(--text-muted);">New
+                  Password</label>
+                <input type="password" id="newPassword" class="search-input" style="width:100%;"
+                  placeholder="Enter new password" />
+              </div>
+              <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:12px; margin-bottom:8px; color:var(--text-muted);">Confirm New
+                  Password</label>
+                <input type="password" id="confirmPassword" class="search-input" style="width:100%;"
+                  placeholder="Confirm new password" />
+              </div>
+              <button type="submit" class="pomo-btn active">
+                <i class="ph ph-key"></i> Update Password
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="widget-panel" style="margin-top:24px;">
+          <h3 style="margin-bottom:20px;"><i class="ph ph-shield-check" style="margin-right:8px;"></i> Two-Factor
+            Authentication</h3>
+          <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Add an extra layer of security to your
+            account.</p>
+          <div
+            style="display:flex; align-items:center; justify-content:space-between; padding:16px; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid var(--border);">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <i class="ph ph-device-mobile" style="font-size:24px; color:var(--primary);"></i>
+              <div>
+                <div style="font-weight:600;">Authenticator App</div>
+                <div style="font-size:12px; color:var(--text-muted);">Use Google Authenticator or similar</div>
+              </div>
+            </div>
+            <button class="action-btn" onclick="Toast.show('2FA setup coming soon!', 'info')">Enable</button>
+          </div>
+        </div>
+
+        <div class="widget-panel" style="margin-top:24px;">
+          <h3 style="margin-bottom:20px; color:#ef4444;"><i class="ph ph-warning" style="margin-right:8px;"></i> Danger
+            Zone</h3>
+          <div
+            style="padding:16px; background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.2); border-radius:12px;">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <div>
+                <div style="font-weight:600;">Delete Account</div>
+                <div style="font-size:12px; color:var(--text-muted);">Permanently delete your account and all data</div>
+              </div>
+              <button class="action-btn" style="background:rgba(239, 68, 68, 0.2); border-color:#ef4444; color:#ef4444;"
+                onclick="confirmDeleteAccount()">Delete Account</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATIONS SETTINGS -->
+      <div id="settings-notifications" class="settings-section">
+        <div class="widget-panel">
+          <h3 style="margin-bottom:20px;">Email Notifications</h3>
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <label class="toggle-setting">
+              <div>
+                <div style="font-weight:600;">Course Updates</div>
+                <div style="font-size:12px; color:var(--text-muted);">Get notified about new courses and content</div>
+              </div>
+              <input type="checkbox" id="notifCourses" checked onchange="saveNotificationSettings()" />
+              <span class="toggle-slider"></span>
+            </label>
+            <label class="toggle-setting">
+              <div>
+                <div style="font-weight:600;">Weekly Progress Report</div>
+                <div style="font-size:12px; color:var(--text-muted);">Receive your weekly learning summary</div>
+              </div>
+              <input type="checkbox" id="notifProgress" checked onchange="saveNotificationSettings()" />
+              <span class="toggle-slider"></span>
+            </label>
+            <label class="toggle-setting">
+              <div>
+                <div style="font-weight:600;">Reminders</div>
+                <div style="font-size:12px; color:var(--text-muted);">Daily learning reminders</div>
+              </div>
+              <input type="checkbox" id="notifReminders" onchange="saveNotificationSettings()" />
+              <span class="toggle-slider"></span>
+            </label>
+            <label class="toggle-setting">
+              <div>
+                <div style="font-weight:600;">Marketing Emails</div>
+                <div style="font-size:12px; color:var(--text-muted);">Promotions and special offers</div>
+              </div>
+              <input type="checkbox" id="notifMarketing" onchange="saveNotificationSettings()" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="widget-panel" style="margin-top:24px;">
+          <h3 style="margin-bottom:20px;">Push Notifications</h3>
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <label class="toggle-setting">
+              <div>
+                <div style="font-weight:600;">Browser Notifications</div>
+                <div style="font-size:12px; color:var(--text-muted);">Show desktop notifications</div>
+              </div>
+              <input type="checkbox" id="notifBrowser" onchange="saveNotificationSettings()" />
+              <span class="toggle-slider"></span>
+            </label>
+            <label class="toggle-setting">
+              <div>
+                <div style="font-weight:600;">Sound Effects</div>
+                <div style="font-size:12px; color:var(--text-muted);">Play sounds for achievements</div>
+              </div>
+              <input type="checkbox" id="notifSound" checked onchange="saveNotificationSettings()" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- APPEARANCE SETTINGS -->
+      <div id="settings-appearance" class="settings-section">
+        <div class="widget-panel">
+          <h3 style="margin-bottom:20px;">Theme</h3>
+          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;">
+            <div class="theme-option active" onclick="setTheme('dark', this)">
+              <div
+                style="width:100%; height:80px; background:#0a0a0f; border-radius:8px; margin-bottom:10px; border:2px solid var(--primary);">
+              </div>
+              <span>Dark Mode</span>
+            </div>
+            <div class="theme-option" onclick="setTheme('light', this)">
+              <div
+                style="width:100%; height:80px; background:#f5f5f5; border-radius:8px; margin-bottom:10px; border:2px solid transparent;">
+              </div>
+              <span>Light Mode</span>
+            </div>
+            <div class="theme-option" onclick="setTheme('system', this)">
+              <div
+                style="width:100%; height:80px; background:linear-gradient(135deg, #0a0a0f 50%, #f5f5f5 50%); border-radius:8px; margin-bottom:10px; border:2px solid transparent;">
+              </div>
+              <span>System</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="widget-panel" style="margin-top:24px;">
+          <h3 style="margin-bottom:20px;">Accent Color</h3>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <div class="color-option active" style="background:var(--primary);"
+              onclick="setAccentColor('primary', this)" title="Indigo"></div>
+            <div class="color-option" style="background:#22d3ee;" onclick="setAccentColor('cyan', this)" title="Cyan">
+            </div>
+            <div class="color-option" style="background:#a855f7;" onclick="setAccentColor('purple', this)"
+              title="Purple"></div>
+            <div class="color-option" style="background:#10b981;" onclick="setAccentColor('green', this)" title="Green">
+            </div>
+            <div class="color-option" style="background:#f97316;" onclick="setAccentColor('orange', this)"
+              title="Orange"></div>
+            <div class="color-option" style="background:#ec4899;" onclick="setAccentColor('pink', this)" title="Pink">
+            </div>
+          </div>
+        </div>
+
+        <div class="widget-panel" style="margin-top:24px;">
+          <h3 style="margin-bottom:20px;">Display</h3>
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <label class="toggle-setting">
+              <div>
+                <div style="font-weight:600;">Compact Mode</div>
+                <div style="font-size:12px; color:var(--text-muted);">Reduce spacing for more content</div>
+              </div>
+              <input type="checkbox" id="compactMode" onchange="toggleCompactMode()" />
+              <span class="toggle-slider"></span>
+            </label>
+            <label class="toggle-setting">
+              <div>
+                <div style="font-weight:600;">Animations</div>
+                <div style="font-size:12px; color:var(--text-muted);">Enable smooth transitions</div>
+              </div>
+              <input type="checkbox" id="animations" checked onchange="toggleAnimations()" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- BILLING SETTINGS -->
+      <div id="settings-billing" class="settings-section">
+        <div class="widget-panel">
+          <h3 style="margin-bottom:20px;">Current Plan</h3>
+          <div
+            style="padding:24px; background:linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); border-radius:16px; border:1px solid rgba(99, 102, 241, 0.2);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+                  <i class="ph ph-crown" style="font-size:24px; color:var(--gold);"></i>
+                  <span style="font-size:24px; font-weight:800;" id="billingPlanName">Free Plan</span>
+                </div>
+                <div style="font-size:14px; color:var(--text-muted);" id="billingPlanDesc">3 courses, Basic quizzes
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:32px; font-weight:800;" id="billingAmount">$0</div>
+                <div style="font-size:12px; color:var(--text-muted);" id="billingPeriod">/month</div>
+              </div>
+            </div>
+            <div style="margin-top:20px; display:flex; gap:12px;">
+              <button class="pomo-btn active" onclick="window.location.href='/pricing.html'">
+                <i class="ph ph-arrow-up"></i> Upgrade Plan
+              </button>
+              <button class="action-btn" id="cancelSubBtn" style="display:none;" onclick="cancelSubscription()">
+                Cancel Subscription
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="widget-panel" style="margin-top:24px;">
+          <h3 style="margin-bottom:20px;">Payment Methods</h3>
+          <div id="paymentMethodsList">
+            <div
+              style="padding:16px; border:1px solid var(--border); border-radius:12px; display:flex; align-items:center; gap:12px; margin-bottom:12px; background:rgba(255,255,255,0.02);">
+              <i class="ph ph-info" style="font-size:24px; color:var(--text-muted);"></i>
+              <div style="flex:1;">
+                <div style="font-size:14px; color:var(--text-muted);">No payment methods added yet</div>
+              </div>
+            </div>
+          </div>
+          <button class="action-btn" style="width:100%; justify-content:center; margin-top:8px;"
+            onclick="window.location.href='/pricing.html'">
+            <i class="ph ph-plus"></i> Add Payment Method
+          </button>
+        </div>
+
+        <div class="widget-panel" style="margin-top:24px;">
+          <h3 style="margin-bottom:20px;">Billing History</h3>
+          <div id="billingHistory">
+            <div style="text-align:center; padding:40px; color:var(--text-muted);">
+              <i class="ph ph-receipt" style="font-size:48px; margin-bottom:16px; opacity:0.3;"></i>
+              <p>No billing history yet</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: COMMUNITY -->
+    <div id="view-community" class="view-container">
+      <h2 style="margin-bottom:24px;">Community Feed</h2>
+
+      <!-- Create Post -->
+      <div class="widget-panel" style="margin-bottom:20px;">
+        <div style="display:flex; gap:12px;">
+          <div class="user-avatar-sm" id="postUserAvatar"
+            style="background:var(--primary); display:flex; align-items:center; justify-content:center; font-weight:bold;">
+            Me</div>
+          <div style="flex:1;">
+            <textarea id="postInput" placeholder="Share your progress or ask a question..."
+              style="width:100%; background:transparent; border:none; color:white; resize:none; font-family:inherit; outline:none; min-height:60px;"></textarea>
+            <div
+              style="display:flex; justify-content:flex-end; margin-top:10px; border-top:1px solid var(--border); padding-top:10px;">
+              <button class="action-btn" onclick="community.createPost()"
+                style="border-radius:6px; padding:6px 16px;">Post</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feed List -->
+      <div id="communityFeed" style="display:flex; flex-direction:column; gap:16px;">
+        <!-- Posts will be injected here -->
+        <div style="text-align:center; color:var(--text-muted); padding:20px;">Loading community...</div>
+      </div>
+
+      <!-- Pagination -->
+      <div id="feedPagination" style="display:flex; justify-content:center; gap:10px; margin-top:20px; display:none;">
+        <button class="btn-secondary" onclick="community.prevPage()">Previous</button>
+        <span id="feedPageInfo" style="display:flex; align-items:center; color:var(--text-muted);"></span>
+        <button class="btn-secondary" onclick="community.nextPage()">Next</button>
+      </div>
+    </div>
+
+    <div class="music-player" id="musicPlayer">
+      <div style="position:absolute; top:10px; right:10px; cursor:pointer; color:var(--text-muted);"
+        onclick="music.toggleWidget()"><i class="ph ph-x"></i></div>
+      <div class="music-info">
+        <div class="music-cover">
+          <i class="ph ph-music-note"></i>
+        </div>
+        <div class="music-details">
+          <div class="music-title" id="musicTitle">Lofi Coding Beats</div>
+          <div class="music-artist">Focus FM</div>
+        </div>
+      </div>
+      <div class="music-controls">
+        <button class="btn-ctrl" onclick="music.prev()"><i class="ph ph-skip-back"></i></button>
+        <button class="btn-play" onclick="music.toggle()" id="musicPlayBtn"><i class="ph ph-play-fill"></i></button>
+        <button class="btn-ctrl" onclick="music.next()"><i class="ph ph-skip-forward"></i></button>
+      </div>
+      <div class="music-progress">
+        <div class="music-bar" id="musicBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      // --- CORE UTILITIES ---
+      class Store {
+        static get(key) {
+          const item = localStorage.getItem(key);
+          return item ? JSON.parse(item) : null;
+        }
+        static set(key, value) {
+          localStorage.setItem(key, JSON.stringify(value));
+        }
+      }
+      const store = Store; // simple alias
+
+      class Toast {
+        static show(msg, type = 'success') {
+          const toast = document.createElement('div');
+          toast.style.cssText = `
+                  position:fixed; bottom:20px; right:20px; 
+                  background:var(--panel); border:1px solid var(--border); 
+                  padding:12px 24px; border-radius:12px; 
+                  box-shadow:0 10px 30px rgba(0,0,0,0.5); 
+                  color:var(--text); font-weight:600; font-size:14px;
+                  z-index:9999; animation: slideUp 0.3s ease-out;
+                  display:flex; align-items:center; gap:10px;
+                `;
+          const icon = type === 'success' ? 'ph-check-circle' : 'ph-warning-circle';
+          const color = type === 'success' ? 'var(--success)' : 'var(--gold)';
+          toast.innerHTML = `<i class="ph ${icon}" style="color:${color}; font-size:18px;"></i> ${msg}`;
+          document.body.appendChild(toast);
+          setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(10px)';
+            setTimeout(() => toast.remove(), 300);
+          }, 3000);
+        }
+      }
+
+      class Confetti {
+        static trigger() {
+          const canvas = document.getElementById('confettiCanvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+
+          const particles = [];
+          const colors = ['#6366f1', '#a855f7', '#ec4899', '#10b981', '#fbbf24'];
+
+          for (let i = 0; i < 100; i++) {
+            particles.push({
+              x: window.innerWidth * 0.5,
+              y: window.innerHeight * 0.5,
+              vx: (Math.random() - 0.5) * 20,
+              vy: (Math.random() - 0.5) * 20,
+              color: colors[Math.floor(Math.random() * colors.length)],
+              size: Math.random() * 5 + 2
+            });
+          }
+
+          let opacity = 1;
+          function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            opacity -= 0.02;
+            particles.forEach(p => {
+              p.x += p.vx;
+              p.y += p.vy;
+              p.vy += 0.5; // gravity
+              ctx.fillStyle = p.color;
+              ctx.globalAlpha = opacity;
+              ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            if (opacity > 0) requestAnimationFrame(animate);
+            else ctx.clearRect(0, 0, canvas.width, canvas.height);
+          }
+          animate();
+        }
+      }
+
+      // --- SYSTEMS ---
+      class Gamification {
+        constructor() {
+          this.xp = 0;
+          this.level = 1;
+          this.init();
+        }
+
+        async init() {
+          try {
+            const res = await fetch('/auth/user');
+            if (res.ok) {
+              const data = await res.json();
+              this.xp = data.xp || 0;
+              this.level = data.level || 1;
+              this.updateUI();
+            }
+          } catch (e) { }
+        }
+
+        calcLevel() { return Math.floor(Math.sqrt(this.xp / 100)) + 1; }
+
+        async addXP(amount) {
+          this.xp += amount;
+          const newLevel = this.calcLevel();
+          if (newLevel > this.level) {
+            Toast.show(`Level Up! You are now Level ${newLevel}!`, 'gold');
+            Confetti.trigger();
+          }
+          this.level = newLevel;
+          this.updateUI();
+
+          // Sync
+          try {
+            await fetch('/api/user/xp', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ xp: this.xp })
+            });
+          } catch (e) { }
+        }
+
+        updateUI() {
+          document.getElementById('levelText').innerText = `Level ${this.level}`;
+          document.getElementById('xpText').innerText = `${this.xp % 100} / 100 XP`;
+          document.getElementById('xpBar').style.width = `${this.xp % 100}%`;
+        }
+      }
+
+      // --- CALENDAR SYSTEM (API) ---
+      class CalendarSystem {
+        constructor() {
+          this.events = {};
+          this.currentDate = new Date();
+          this.init();
+        }
+
+        init() {
+          this.loadEvents();
+        }
+
+        async loadEvents() {
+          try {
+            const res = await fetch('/api/calendar');
+            if (res.ok) {
+              this.events = await res.json();
+            }
+            this.render(this.currentDate);
+          } catch (e) { console.error(e); }
+        }
+
+        today() {
+          this.currentDate = new Date();
+          this.render(this.currentDate);
+        }
+
+        prevMonth() {
+          this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+          this.render(this.currentDate);
+        }
+
+        nextMonth() {
+          this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+          this.render(this.currentDate);
+        }
+
+        render(date) {
+          const grid = document.getElementById('calGrid');
+          const monthDisplay = document.getElementById('currentMonthYear');
+          if (!grid || !monthDisplay) return;
+
+          monthDisplay.innerText = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+          grid.innerHTML = '';
+
+          const year = date.getFullYear();
+          const month = date.getMonth();
+          const firstDay = new Date(year, month, 1).getDay(); // 0 = Sun
+          const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+          // Pad empty cells
+          for (let i = 0; i < firstDay; i++) {
+            grid.innerHTML += `<div class="day-cell empty" style="min-height:80px; padding:10px; border:1px solid var(--border); opacity:0.3;"></div>`;
+          }
+
+          for (let i = 1; i <= daysInMonth; i++) {
+            const dayKey = `${year}-${month + 1}-${i}`;
+            const hasEvent = this.events[dayKey];
+            const eventHtml = hasEvent ? `<div style="margin-top:5px; font-size:10px; background:var(--primary); color:white; padding:2px 4px; border-radius:4px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">${hasEvent}</div>` : '';
+
+            const cell = document.createElement('div');
+            cell.className = 'day-cell';
+            cell.style.cssText = `min-height:80px; padding:10px; border:1px solid var(--border); cursor:pointer; transition:0.2s;`;
+            cell.onmouseover = () => cell.style.background = 'rgba(255,255,255,0.03)';
+            cell.onmouseout = () => cell.style.background = 'transparent';
+            cell.onclick = () => this.addEvent(dayKey);
+
+            cell.innerHTML = `<div style="font-weight:700; color:${hasEvent ? 'var(--primary)' : 'var(--text-muted)'}">${i}</div>${eventHtml}`;
+            grid.appendChild(cell);
+          }
+        }
+
+        async addEvent(key) {
+          const current = this.events[key] || '';
+          const val = prompt('Add Event:', current);
+          if (val === null) return;
+
+          try {
+            const res = await fetch('/api/calendar', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ dateKey: key, title: val })
+            });
+            if (res.ok) {
+              this.loadEvents();
+              if (val) Toast.show('Event saved to calendar!', 'success');
+            }
+          } catch (e) { console.error(e); }
+        }
+      }
+
+      class EditorSystem { constructor() { } } // Placeholder
+
+      // --- KANBAN SYSTEM (API) ---
+      class KanbanSystem {
+        constructor() {
+          this.tasks = [];
+          this.init();
+        }
+
+        init() {
+          this.loadTasks();
+        }
+
+        async loadTasks() {
+          try {
+            const res = await fetch('/api/kanban');
+            if (res.ok) {
+              this.tasks = await res.json();
+              this.render();
+            }
+          } catch (e) { console.error('Failed to load tasks', e); }
+        }
+
+        render() {
+          ['todo', 'doing', 'done'].forEach(s => {
+            const el = document.getElementById(`kanban-${s}`);
+            if (el) {
+              el.innerHTML = '';
+              const count = this.tasks.filter(t => t.status === s).length;
+              const countEl = el.parentElement.querySelector('.kanban-count');
+              if (countEl) countEl.innerText = count;
+            }
+          });
+
+          this.updateCreatorPortfolio();
+
+          this.tasks.forEach(task => {
+            const col = document.getElementById(`kanban-${task.status}`);
+            if (!col) return;
+
+            const card = document.createElement('div');
+            card.className = 'kanban-card';
+            card.draggable = true;
+            card.id = `task-${task.id}`;
+            card.ondragstart = (e) => this.drag(e, task.id);
+
+            let tagColor = 'var(--primary)';
+            if (task.tag === 'Backend') tagColor = 'var(--accent)';
+            if (task.tag === 'Bug') tagColor = 'var(--danger)';
+
+            card.innerHTML = `
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <div style="font-size:10px; color:${tagColor}; font-weight:700; text-transform:uppercase;">${task.tag}</div>
+                                <div style="font-size:10px; color:var(--text-muted);"><i class="ph ph-calendar"></i> ${task.dueDate || 'No Date'}</div>
+                            </div>
+                            <div style="font-size:13px; font-weight:600; line-height:1.4;">${task.title}</div>
+                            <div style="display:flex; justify-content:space-between; margin-top:10px; align-items:center;">
+                                <div style="display:flex; -space: -5px;">
+                                   <div style="width:20px; height:20px; border-radius:50%; background:var(--panel); border:1px solid var(--border);"></div>
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <i class="ph ph-pencil-simple" style="cursor:pointer; color:var(--text-muted); font-size:14px;" onclick="window.kanban.editTask(${task.id})"></i>
+                                    <i class="ph ph-trash" style="cursor:pointer; color:var(--text-muted); font-size:14px;" onclick="window.kanban.deleteTask(${task.id})"></i>
+                                </div>
+                            </div>
+                        `;
+            col.appendChild(card);
+          });
+        }
+
+        async addTask() {
+          const title = prompt("Task Title:");
+          if (!title) return;
+          const tag = prompt("Tag (Frontend, Backend, Design, Bug):") || 'General';
+          const dueDate = prompt("Due Date (e.g. Dec 30):") || 'No Date';
+
+          try {
+            const res = await fetch('/api/kanban', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ title, tag, dueDate, status: 'todo' })
+            });
+            if (res.ok) {
+              this.loadTasks(); // reload
+              game.addXP(10);
+              Toast.show('Task added to server!', 'success');
+            }
+          } catch (e) { console.error(e); }
+        }
+
+        async editTask(id) {
+          const task = this.tasks.find(t => t.id === id);
+          if (!task) return;
+          const newTitle = prompt("Edit Title:", task.title);
+          if (newTitle) {
+            await fetch(`/api/kanban/${id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ title: newTitle })
+            });
+            this.loadTasks();
+          }
+        }
+
+        async deleteTask(id) {
+          if (!confirm('Delete this task?')) return;
+          await fetch(`/api/kanban/${id}`, { method: 'DELETE' });
+          this.loadTasks();
+        }
+
+        drag(e, id) { e.dataTransfer.setData("text", id); }
+        allowDrop(e) { e.preventDefault(); }
+
+        async drop(e, status) {
+          e.preventDefault();
+          const id = parseInt(e.dataTransfer.getData("text"));
+          const task = this.tasks.find(t => t.id === id);
+
+          if (task && task.status !== status) {
+            // Optimistic update
+            task.status = status;
+            this.render();
+
+            try {
+              const res = await fetch(`/api/kanban/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+              });
+              if (res.ok && status === 'done') {
+                game.addXP(50);
+                Confetti.trigger();
+                Toast.show('Task Complete! +50 XP');
+              }
+            } catch (e) { console.error(e); }
+          }
+        }
+
+
+        updateCreatorPortfolio() {
+          const container = document.getElementById('creatorProjects');
+          if (!container) return;
+
+          // Keep the "Add Project" button at the end
+          const addBtn = `
+                <div class="course-card" onclick="window.kanban.addTask()">
+                  <div class="course-inner" style="border:2px dashed var(--border); background:transparent; display:flex; align-items:center; justify-content:center;">
+                    <div style="text-align:center;">
+                      <i class="ph ph-plus" style="font-size:32px; color:var(--text-muted);"></i>
+                      <div style="margin-top:10px; color:var(--text-muted); font-size:12px;">Add Project</div>
+                    </div>
+                  </div>
+                </div>`;
+
+          // Filter done tasks + static items
+          const doneTasks = this.tasks.filter(t => t.status === 'done');
+
+          let html = '';
+
+          // Static default item
+          html += ``;
+
+          // Dynamic items from Kanban
+          doneTasks.forEach(t => {
+            html += `
+                <div class="course-card">
+                  <div class="course-inner">
+                    <div class="course-icon" style="color:var(--success)"><i class="ph ph-check-circle"></i></div>
+                    <div class="course-title">${t.title}</div>
+                    <div class="course-desc">Completed project from Kanban board.</div>
+                    <div class="course-meta"><span>${t.tag}</span><span>Done</span></div>
+                  </div>
+                </div>`;
+          });
+
+          container.innerHTML = html + addBtn;
+        }
+      }
+
+      // --- VIEW CONTROL ---
+      window.switchView = function (viewId, btn) {
+        document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+        const target = document.getElementById('view-' + viewId);
+        if (target) target.classList.add('active');
+
+        if (btn) {
+          document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+          btn.classList.add('active');
+        }
+      };
+
+      window.toggleSidebar = () => {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('overlay').style.display =
+          document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none';
+      };
+
+      window.toggleTheme = () => {
+        const isLight = document.body.classList.toggle('light-theme');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+
+        // Update Icon
+        const btn = document.querySelector('button[onclick="window.toggleTheme()"] i');
+        if (btn) {
+          btn.className = isLight ? 'ph ph-moon' : 'ph ph-sun';
+        }
+      };
+
+      window.toggleFocusMode = () => {
+        document.body.classList.toggle('focus');
+      };
+
+      window.filterContent = () => {
+        const val = document.getElementById('searchFilter').value.toLowerCase();
+        // Placeholder search implementation
+      };
+
+      window.initCharts = () => {
+        const commonOptions = {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+            x: { grid: { display: false } }
+          }
+        };
+
+        // Learning Hours Line Chart
+        if (document.getElementById('learningLine')) {
+          new Chart(document.getElementById('learningLine'), {
+            type: 'line',
+            data: {
+              labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+              datasets: [{
+                label: 'Hours',
+                data: [0, 0, 0, 0, 0, 0, 0],
+                borderColor: '#6366f1',
+                tension: 0.4,
+                fill: true,
+                backgroundColor: 'rgba(99, 102, 241, 0.1)'
+              }]
+            },
+            options: commonOptions
+          });
+        }
+
+        // Skill Radar
+        if (document.getElementById('skillRadar')) {
+          new Chart(document.getElementById('skillRadar'), {
+            type: 'radar',
+            data: {
+              labels: ['Frontend', 'Backend', 'DevOps', 'UI/UX', 'AI', 'Security'],
+              datasets: [{
+                label: 'Skill Level',
+                data: [0, 0, 0, 0, 0, 0],
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.2)'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                r: {
+                  grid: { color: 'rgba(255,255,255,0.1)' },
+                  angleLines: { color: 'rgba(255,255,255,0.1)' },
+                  pointLabels: { color: '#888', font: { size: 10 } }
+                }
+              },
+              plugins: { legend: { display: false } }
+            }
+          });
+        }
+
+        // Task Doughnut
+        if (document.getElementById('taskDoughnut')) {
+          new Chart(document.getElementById('taskDoughnut'), {
+            type: 'doughnut',
+            data: {
+              labels: ['Completed', 'In Progress', 'Pending'],
+              datasets: [{
+                data: [0, 0, 0],
+                backgroundColor: ['#10b981', '#fbbf24', '#ef4444'],
+                borderWidth: 0
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              cutout: '70%',
+              plugins: {
+                legend: { position: 'bottom', labels: { color: '#888', boxWidth: 10 } }
+              }
+            }
+          });
+        }
+      };
+
+      function initHeatmap() {
+        const hm = document.getElementById('heatmap');
+        if (!hm) return;
+        hm.innerHTML = '';
+        for (let i = 0; i < 60; i++) {
+          const d = document.createElement('div');
+          d.className = 'hm-dot';
+          // if (Math.random() > 0.7) d.classList.add(Math.random() > 0.5 ? 'hm-2' : 'hm-1');
+          hm.appendChild(d);
+        }
+      }
+
+      // --- COMMUNITY SYSTEM (API) ---
+      class CommunitySystem {
+        constructor() {
+          this.page = 1;
+          this.totalPages = 1;
+          this.isLoading = false;
+          this.init();
+        }
+
+        init() {
+          // Load initial
+          // We defer loading until view is switched to, or just load now? 
+          // Let's load now for simplicity
+          this.loadPosts();
+        }
+
+        async loadPosts(page = 1) {
+          if (this.isLoading) return;
+          this.isLoading = true;
+          this.page = page;
+
+          const feed = document.getElementById('communityFeed');
+          if (feed) feed.style.opacity = '0.5';
+
+          try {
+            const res = await fetch(`/api/community/posts?page=${page}&limit=5`);
+            if (res.ok) {
+              const data = await res.json(); // { posts: [], totalPages: N, ... }
+              this.render(data.posts || []);
+              this.totalPages = data.totalPages || 1;
+              this.updateControls();
+            }
+          } catch (e) { console.error(e); }
+
+          this.isLoading = false;
+          if (feed) feed.style.opacity = '1';
+        }
+
+        render(posts) {
+          const feed = document.getElementById('communityFeed');
+          if (!feed) return;
+
+          if (posts.length === 0) {
+            feed.innerHTML = `<div style="text-align:center; color:var(--text-muted);">No posts yet. Be the first!</div>`;
+            return;
+          }
+
+          feed.innerHTML = posts.map(post => {
+            const initials = post.User && post.User.username ? post.User.username.substring(0, 2).toUpperCase() : '??';
+            const avatar = post.User && post.User.avatar ? `<img src="${post.User.avatar}" style="width:100%; height:100%; object-fit:cover;">` : initials;
+            const time = new Date(post.createdAt).toLocaleDateString() + ' ' + new Date(post.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            return `
+                    <div class="card" style="padding:16px;">
+                        <div style="display:flex; gap:12px; margin-bottom:12px;">
+                            <div class="user-avatar-sm" style="background:#333; display:flex; align-items:center; justify-content:center; font-size:12px; overflow:hidden;">
+                                ${avatar}
+                            </div>
+                            <div>
+                                <div style="font-weight:700; font-size:14px; color:white;">${post.User ? post.User.username : 'Unknown'}</div>
+                                <div style="font-size:11px; color:var(--text-muted);">${time}</div>
+                            </div>
+                        </div>
+                        <div style="font-size:14px; line-height:1.5; color:var(--text-secondary); white-space:pre-wrap;">${post.content}</div>
+                        
+                        <!-- Simple Actions -->
+                        <div style="display:flex; gap:16px; margin-top:16px; padding-top:12px; border-top:1px solid var(--border-subtle); color:var(--text-muted); font-size:13px;">
+                            <div style="cursor:pointer; display:flex; align-items:center; gap:6px;"><i class="ph ph-heart"></i> Like</div>
+                            <div style="cursor:pointer; display:flex; align-items:center; gap:6px;"><i class="ph ph-chat-circle"></i> Comment</div>
+                        </div>
+                    </div>
+                  `;
+          }).join('');
+        }
+
+        updateControls() {
+          const div = document.getElementById('feedPagination');
+          const info = document.getElementById('feedPageInfo');
+          if (!div || !info) return;
+
+          div.style.display = this.totalPages > 1 ? 'flex' : 'none';
+          info.innerText = `Page ${this.page} of ${this.totalPages}`;
+        }
+
+        nextPage() {
+          if (this.page < this.totalPages) this.loadPosts(this.page + 1);
+        }
+        prevPage() {
+          if (this.page > 1) this.loadPosts(this.page - 1);
+        }
+
+        async createPost() {
+          const input = document.getElementById('postInput');
+          if (!input || !input.value.trim()) return;
+
+          const content = input.value.trim();
+          try {
+            const res = await fetch('/api/community/posts', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ content })
+            });
+            if (res.ok) {
+              input.value = '';
+              Toast.show('Post shared!', 'success');
+              game.addXP(20); // Reward
+              this.loadPosts(1); // Refresh to top
+            }
+          } catch (e) { console.error(e); }
+        }
+      }
+
+      // --- GLOBAL VARIABLES & INIT ---
+      let game, calendar, editor, community;
+
+      document.addEventListener('DOMContentLoaded', () => {
+        game = new Gamification();
+        calendar = new CalendarSystem();
+        editor = new EditorSystem();
+        window.kanban = new KanbanSystem();
+        window.community = new CommunitySystem(); // Init Community
+
+        // ... (Existing init code)
+
+        // Init Charts if exist
+        if (window.Chart) {
+          window.initCharts();
+        }
+
+        // Greeting & User Init
+        fetch('/auth/user')
+          .then(res => {
+            if (res.status === 401) return null;
+            return res.json();
+          })
+          .then(data => {
+            if (data) {
+              localStorage.setItem('username', data.username);
+              // Populate Stats
+              if (document.getElementById('stat-xp')) document.getElementById('stat-xp').innerText = data.xp || 0;
+              if (document.getElementById('stat-streak')) document.getElementById('stat-streak').innerText = (data.streak || 0) + '🔥';
+              if (document.getElementById('stat-level')) document.getElementById('stat-level').innerText = data.level || 1;
+              if (document.getElementById('stat-focus')) document.getElementById('stat-focus').innerText = (data.focusHours || 0).toFixed(1) + 'h';
+
+              // Update Level Card in Sidebar
+              if (document.getElementById('levelText')) document.getElementById('levelText').innerText = 'Level ' + (data.level || 1);
+              if (document.getElementById('xpText')) document.getElementById('xpText').innerText = (data.xp || 0) + ' / ' + ((data.level || 1) * 100) + ' XP';
+              if (document.getElementById('xpBar')) {
+                const nextLevelXp = (data.level || 1) * 100;
+                const pct = Math.min(100, ((data.xp || 0) / nextLevelXp) * 100);
+                document.getElementById('xpBar').style.width = pct + '%';
+              }
+
+              // Populate Course Progress
+              const progressMap = {
+                'web-dev': 'node-web-dev',
+                'game-dev': 'node-game-dev',
+                'code-editor': 'node-code-editor',
+                'ui-ux': 'node-ui-ux',
+                'cv-builder': 'node-cv-builder',
+                'cyber-security': 'node-cyber-security',
+                'ai-ml': 'node-ai-ml',
+                'blockchain': 'node-blockchain'
+              };
+              const cP = data.courseProgress || {};
+              Object.entries(progressMap).forEach(([key, id]) => {
+                const el = document.getElementById(id);
+                if (el) {
+                  const val = cP[key] || 0;
+                  const fill = el.querySelector('.progress-fill');
+                  const text = el.querySelector('.node-progress span');
+                  if (fill) fill.style.width = val + '%';
+                  if (text) text.innerText = val + '% Complete';
+
+                  // Status Logic
+                  if (val === 100) {
+                    el.classList.add('completed');
+                    el.classList.remove('locked', 'current');
+                    const badge = el.querySelector('.node-badge');
+                    if (badge) {
+                      badge.className = 'node-badge completed';
+                      badge.innerHTML = '<i class="ph ph-check"></i>';
+                    }
+                  } else if (val > 0) {
+                    el.classList.remove('locked');
+                    el.classList.add('current');
+                    const badge = el.querySelector('.node-badge');
+                    if (badge) {
+                      badge.className = 'node-badge current';
+                      badge.innerHTML = '<i class="ph ph-play"></i>';
+                    }
+                  }
+                }
+              });
+            }
+
+            const hour = new Date().getHours();
+            const greet = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
+            const username = data ? data.username : (localStorage.getItem('username') || 'Alex');
+
+            if (data) localStorage.setItem('username', data.username);
+
+            const gEl = document.getElementById('greetingMsg');
+            if (gEl) gEl.innerText = `${greet}, ${username}! ⚡`;
+
+            if (username) {
+              const initials = username.slice(0, 2).toUpperCase();
+              const initEl = document.getElementById('headerUserInitials');
+              const avatarEl = document.getElementById('headerUserAvatar');
+
+              if (data && data.avatar) {
+                // Show Avatar, Hide Initials
+                if (avatarEl) {
+                  avatarEl.src = data.avatar;
+                  avatarEl.style.display = 'block';
+                }
+                if (initEl) initEl.style.display = 'none';
+              } else {
+                // Show Initials, Hide Avatar
+                if (avatarEl) avatarEl.style.display = 'none';
+                if (initEl) {
+                  initEl.innerText = initials;
+                  initEl.style.display = 'flex';
+                }
+              }
+            }
+
+            // --- AVATAR UPLOAD LOGIC ---
+            const profileBtn = document.getElementById('headerProfileBtn');
+            const fileInput = document.getElementById('avatarUpload');
+
+            if (profileBtn && fileInput) {
+              profileBtn.onclick = () => fileInput.click();
+
+              fileInput.onchange = async () => {
+                const file = fileInput.files[0];
+                if (!file) return;
+
+                // Optimistic UI update (Preview)
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  const img = document.getElementById('headerUserAvatar');
+                  const init = document.getElementById('headerUserInitials');
+                  if (img) { img.src = e.target.result; img.style.display = 'block'; }
+                  if (init) init.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+
+                // Upload
+                const formData = new FormData();
+                formData.append('avatar', file);
+
+                try {
+                  // Using fetch directly as this uses FormData
+                  const token = localStorage.getItem('token'); // If token based, but we rely on cookie session
+                  const res = await fetch('/api/user/avatar', {
+                    method: 'POST',
+                    body: formData
+                  });
+
+                  if (res.ok) {
+                    const result = await res.json();
+                    console.log('Avatar uploaded:', result.avatar);
+                    // Show success toast if available function
+                    // showToast('success', 'Profile picture updated!'); 
+                    // Or use alert for now if showToast isn't global
+                  } else {
+                    console.error('Upload failed');
+                    alert('Failed to upload avatar. Please try again.');
+                  }
+                } catch (err) {
+                  console.error('Upload error', err);
+                }
+              };
+            }
+
+            // Show Admin Button
+            if (data && data.role === 'admin') {
+              const sidebar = document.querySelector('.sidebar ul');
+              // Check if already exists to prevent dupes
+              if (sidebar && !document.getElementById('adminBtn')) {
+                const li = document.createElement('li');
+                li.innerHTML = `<a href="/admin.html" style="color:var(--accent); font-weight:bold;"><i class="ph ph-lightning"></i> Admin Panel</a>`;
+                li.id = 'adminBtn';
+                // Insert as second item (after dashboard) or just prepend
+                sidebar.prepend(li);
+              }
+            }
+
+            // JOIN SOCKET ROOM
+            if (window.socket && data && data.id) {
+              window.socket.emit('join', data.id);
+            }
+          })
+          .catch(e => console.error(e));
+
+        // Date
+        const dEl = document.getElementById('dateDisplay');
+        if (dEl) dEl.innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+        initHeatmap();
+
+        // Init Theme
+        if (localStorage.getItem('theme') === 'light') {
+          document.body.classList.add('light-theme');
+          const btn = document.querySelector('button[onclick="window.toggleTheme()"] i');
+          if (btn) btn.className = 'ph ph-moon';
+        }
+      });
+
+      // --- GLOBAL SHORTCUTS ---
+      // Shift + A = SECURE ADMIN ACCESS
+      document.addEventListener('keydown', async (e) => {
+        if (e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+          Toast.show('🔒 Verifying Admin Access...');
+          try {
+            const res = await fetch('/auth/user');
+            if (res.ok) {
+              const user = await res.json();
+              if (user && user.role === 'admin') {
+                Toast.show('✅ Access Granted', 'success');
+                setTimeout(() => window.location.href = '/admin.html', 800);
+              } else {
+                Toast.show('⛔ Access Denied', 'error');
+              }
+            } else {
+              Toast.show('❌ Server Offline', 'error');
+            }
+          } catch (err) {
+            Toast.show('❌ Connection Failed', 'error');
+          }
+        }
+      });
+
+      // --- REAL-TIME SOCKET CONNECTION ---
+      // Load Socket.io Client (using CDN for simplicity, or npm package if preferred)
+      const socketScript = document.createElement('script');
+      socketScript.src = "https://cdn.socket.io/4.7.4/socket.io.min.js";
+      socketScript.onload = () => {
+        const socket = io('http://localhost:5000');
+
+        // Join Room on Connect (if logged in)
+        socket.on('connect', () => {
+          console.log('Socket Connected:', socket.id);
+          // We need the user ID. We can fetch it if we don't have it stored globally.
+          // For now, let's assuming fetch('/auth/user') logic runs earlier and sets data.
+          // Or we can just rely on the existing fetch('/auth/user') to triggering the join.
+        });
+
+        // Listen for Notifications
+        socket.on('notification', (data) => {
+          console.log('Notification:', data);
+
+          // Show Toast
+          const notifMenu = document.getElementById('notifMenu');
+          const badge = document.getElementById('notifBadge');
+          if (badge) badge.classList.add('active');
+
+          // Add to menu
+          if (notifMenu) {
+            const empty = document.getElementById('emptyNotif');
+            if (empty) empty.style.display = 'none';
+
+            const item = document.createElement('div');
+            item.className = 'notif-item';
+            item.innerHTML = `<b>${data.title}</b>${data.message}`;
+            notifMenu.prepend(item);
+          }
+
+          // Show visible toast popup
+          showToast(data.message, data.type || 'info');
+        });
+
+        // Expose socket globally for other parts to use logic
+        window.socket = socket;
+      };
+      document.body.appendChild(socketScript);
+
+      // Simple Toast Helper
+      function showToast(msg, type = 'info') {
+        const toast = document.createElement('div');
+        toast.style.position = 'fixed';
+        toast.style.bottom = '20px';
+        toast.style.right = '20px';
+        toast.style.background = type === 'error' ? 'var(--danger)' : 'var(--primary)';
+        toast.style.color = 'white';
+        toast.style.padding = '12px 24px';
+        toast.style.borderRadius = '8px';
+        toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+        toast.style.zIndex = '9999';
+        toast.style.animation = 'slideUp 0.3s ease-out';
+        toast.innerText = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+      }
+      // Inject CSS for slideUp if not exists
+      const style = document.createElement('style');
+      style.innerHTML = `@keyframes slideUp { from { transform: translateY(20px); opacity:0; } to { transform: translateY(0); opacity:1; } }`;
+      document.head.appendChild(style);
+
+
+
+
+      // --- QUICK NOTES ---
+      window.toggleNotes = () => document.getElementById('notesWidget').classList.toggle('active');
+      window.saveNotes = () => store.set('quickNotes', document.getElementById('notesArea').value);
+      if (document.getElementById('notesArea')) {
+        document.getElementById('notesArea').value = store.get('quickNotes') || '';
+      }
+
+      // --- MUSIC SYSTEM ---
+      class MusicSystem {
+        constructor() {
+          this.tracks = [
+            { title: 'Lofi Study 1', src: 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3' },
+            { title: 'Chill Vibes', src: 'https://cdn.pixabay.com/audio/2022/10/25/audio_145ba8521a.mp3' },
+            { title: 'Night Coding', src: 'https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3' }
+          ];
+          this.currentIdx = 0;
+          this.audio = new Audio(this.tracks[0].src);
+          this.audio.loop = true;
+          this.isPlaying = false;
+          this.init();
+        }
+
+        init() {
+          this.audio.ontimeupdate = () => {
+            const pct = (this.audio.currentTime / this.audio.duration) * 100;
+            document.getElementById('musicBar').style.width = pct + '%';
+          };
+        }
+
+        toggleWidget() {
+          document.getElementById('musicPlayer').classList.toggle('active');
+        }
+
+        toggle() {
+          if (this.isPlaying) {
+            this.audio.pause();
+            document.getElementById('musicPlayBtn').innerHTML = '<i class="ph ph-play-fill"></i>';
+            document.querySelector('.music-cover').style.animationPlayState = 'paused';
+          } else {
+            this.audio.play();
+            document.getElementById('musicPlayBtn').innerHTML = '<i class="ph ph-pause-fill"></i>';
+            document.querySelector('.music-cover').style.animationPlayState = 'running';
+          }
+          this.isPlaying = !this.isPlaying;
+        }
+
+        next() {
+          this.currentIdx = (this.currentIdx + 1) % this.tracks.length;
+          this.loadTrack();
+        }
+
+        prev() {
+          this.currentIdx = (this.currentIdx - 1 + this.tracks.length) % this.tracks.length;
+          this.loadTrack();
+        }
+
+        loadTrack() {
+          const wasPlaying = this.isPlaying;
+          this.audio.src = this.tracks[this.currentIdx].src;
+          document.getElementById('musicTitle').innerText = this.tracks[this.currentIdx].title;
+          if (wasPlaying) this.audio.play();
+        }
+      }
+
+      // Global Access
+      let music;
+      window.toggleMusic = function () {
+        if (!music) music = new MusicSystem();
+        music.toggleWidget();
+      }
+
+
+      let timerInt = null;
+      let time = 25 * 60;
+      window.startPomo = () => {
+        const btn = document.getElementById('btnStart');
+        if (timerInt) {
+          clearInterval(timerInt); timerInt = null;
+          btn.innerHTML = '<i class="ph ph-play"></i>';
+          btn.classList.remove('active');
+        } else {
+          btn.innerHTML = '<i class="ph ph-pause"></i>';
+          btn.classList.add('active');
+          timerInt = setInterval(() => {
+            if (time > 0) {
+              time--;
+              const m = Math.floor(time / 60).toString().padStart(2, '0');
+              const s = (time % 60).toString().padStart(2, '0');
+              document.getElementById('pomoDisplay').innerText = `${m}:${s}`;
+            } else {
+              clearInterval(timerInt);
+              game.addXP(500);
+              Toast.show("Focus Session Complete! +500 XP", 'gold');
+              time = 25 * 60;
+
+              // Save Focus Time
+              fetch('/api/user/focus', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ hours: 0.5 })
+              }).then(res => res.json())
+                .then(data => {
+                  // Update UI
+                  const el = document.getElementById('stat-focus');
+                  if (el) el.innerText = (data.focusHours || 0).toFixed(1) + 'h';
+                })
+                .catch(console.error);
+            }
+          }, 1000);
+        }
+      };
+      window.resetPomo = () => {
+        clearInterval(timerInt); timerInt = null; time = 25 * 60;
+        document.getElementById('pomoDisplay').innerText = '25:00';
+        document.getElementById('btnStart').innerHTML = '<i class="ph ph-play"></i>';
+        document.getElementById('btnStart').classList.remove('active');
+      };
+
+      // Chat
+      window.toggleChat = () => document.getElementById('aiWindow').classList.toggle('open');
+      window.handleChat = (e) => { if (e.key === 'Enter') window.sendChat(); };
+      window.sendChat = () => {
+        const inp = document.getElementById('chatInput');
+        const body = document.getElementById('chatBody');
+        const val = DOMPurify.sanitize(inp.value.trim());
+        if (!val) return;
+
+        body.innerHTML += `<div style="text-align:right; margin:10px 0;"><span
+        style="background:var(--primary); padding:8px 12px; border-radius:12px;">${val}</span></div>`;
+        inp.value = '';
+        body.scrollTop = body.scrollHeight;
+
+        setTimeout(() => {
+          body.innerHTML += `<div style="text-align:left; margin:10px 0;"><span
+        style="background:rgba(255,255,255,0.05); padding:8px 12px; border-radius:12px;">
+        <strong>🤖 AI Assistant</strong><br>
+        AI features are coming soon! We're working on integrating smart learning recommendations and personalized study assistance. Stay tuned!
+        </span></div>`;
+          body.scrollTop = body.scrollHeight;
+        }, 600);
+      };
+
+      // Notifications
+      window.toggleNotif = () => {
+        const menu = document.getElementById('notifMenu');
+        menu.classList.toggle('show');
+        if (menu.classList.contains('show')) document.getElementById('notifBadge').classList.remove('active');
+      };
+
+
+      /* LOGOUT HANDLER */
+      window.handleLogout = () => {
+        if (confirm('Are you sure you want to logout?')) {
+          fetch('/auth/logout', { method: 'POST', credentials: 'include' })
+            .then(() => {
+              localStorage.removeItem('username');
+              localStorage.removeItem('token');
+              window.location.href = '/';
+            })
+            .catch(() => {
+              window.location.href = '/';
+            });
+        }
+      };
+    </script>
+</body>
+
+</html>

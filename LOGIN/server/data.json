@@ -1,0 +1,29 @@
+{
+  "users": [
+    {
+      "id": "ie49noy",
+      "username": "Yousef Amr",
+      "email": "gooamr88@gmail.com",
+      "passwordHash": "$2b$10$VDVr85vvu3RgobjdMiiWb.zQaiyUNEwAstnEr3fb//VR.KH.JB2ca",
+      "createdAt": 1766178193891,
+      "verified": true
+    },
+    {
+      "id": "y17roce",
+      "username": "Mona",
+      "email": "skilifysupp0rt@gmail.com",
+      "passwordHash": "$2b$10$Xk1C2i1zKnwCga0jTd2q5uiLG5e4jgxfxwGvJ5dzkZWHLRt8vQ3Vu",
+      "createdAt": 1766178624281,
+      "verified": true
+    },
+    {
+      "id": "iy1xsa6",
+      "username": "Eyad Amr",
+      "email": "amreyad202@gmail.com",
+      "googleId": "112253079876753831617",
+      "createdAt": 1766769388362,
+      "verified": true
+    }
+  ],
+  "otps": []
+}

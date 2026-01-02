@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanium Platinum | Game Dev Track</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* REUSED TITANIUM DESIGN SYSTEM */
+        :root {
+            --bg-body: #050507;
+            --bg-panel: #0b0b0e;
+            --bg-surface: #151519;
+            --border-dim: rgba(255, 255, 255, 0.06);
+            --border-light: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --blue: #3b82f6;
+            --green: #10b981;
+            --red: #ef4444;
+            --purple: #8b5cf6;
+            --orange: #f59e0b;
+            --cyan: #06b6d4;
+            --neon: #f0f;
+
+            --theme: var(--orange);
+            --glow: rgba(245, 158, 11, 0.25);
+
+            --font-ui: 'Plus Jakarta Sans', sans-serif;
+            --font-head: 'Outfit', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+            --nav-w: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            outline: none;
+            text-decoration: none;
+        }
+
+        body {
+            background: var(--bg-body);
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Layout */
+        .sidebar {
+            width: var(--nav-w);
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border-dim);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .brand {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            gap: 12px;
+            font-family: var(--font-head);
+            font-size: 22px;
+            font-weight: 800;
+            border-bottom: 1px solid var(--border-dim);
+        }
+
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--theme), #222);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .nav-scroller {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 16px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .nav-item:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-item.active i {
+            color: var(--theme);
+        }
+
+        .main-content {
+            margin-left: var(--nav-w);
+            flex: 1;
+            padding: 0;
+            transition: margin 0.3s ease;
+        }
+
+        .top-header {
+            height: 80px;
+            border-bottom: 1px solid var(--border-dim);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            background: rgba(2, 2, 3, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .xp-pill {
+            background: var(--glow);
+            border: 1px solid var(--theme);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--theme);
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .viewport {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: calc(100vh - 80px);
+        }
+
+        .track-hero {
+            padding: 60px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-dim);
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 40px;
+            animation: slideUp 0.5s ease;
+        }
+
+        .track-hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40%;
+            height: 100%;
+            background: radial-gradient(circle at center, var(--glow), transparent 70%);
+            opacity: 0.4;
+        }
+
+        .hero-title {
+            font-family: var(--font-head);
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 16px;
+        }
+
+        .grid-courses {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            animation: slideUp 0.7s ease;
+        }
+
+        .card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-dim);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--theme);
+        }
+
+        .card-thumb {
+            height: 180px;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+            filter: grayscale(0.5);
+            transition: 0.5s;
+        }
+
+        .card:hover .card-thumb img {
+            opacity: 1;
+            filter: grayscale(0);
+            transform: scale(1.05);
+        }
+
+        .card-body {
+            padding: 24px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .c-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .c-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media(max-width: 1100px) {
+            .grid-courses {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+
+    <!-- Video Learning System -->
+    <script src="/js/courseData.js"></script>
+    <script src="/js/videoSystem.js"></script>
+</head>
+
+<body>
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-icon"><i class="ph ph-game-controller"></i></div>GAMELABS
+        </div>
+        <div class="nav-scroller">
+            <div
+                style="margin-bottom:30px; padding:10px; background:rgba(0,0,0,0.3); border-radius:12px; border:1px solid var(--border-dim);">
+                <canvas id="skillChart"></canvas>
+            </div>
+            <div class="nav-item active" onclick="app.load('unity', this)"><i class="ph ph-cube"></i> Unity 3D</div>
+            <div class="nav-item" onclick="app.load('unreal', this)"><i class="ph ph-polygon"></i> Unreal Engine</div>
+            <div class="nav-item" onclick="app.load('cpp', this)"><i class="ph ph-code"></i> C++ Core</div>
+            <div class="nav-item" onclick="app.load('design', this)"><i class="ph ph-paint-brush"></i> Game Design</div>
+            <div class="nav-label"
+                style="font-size:11px; font-weight:700; color:#555; letter-spacing:1px; margin-top:20px; padding-left:12px;">
+                SYSTEM</div>
+            <div class="nav-item" onclick="location.href='../dashboard.html'"><i class="ph ph-house"></i> Dashboard
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div style="display:flex;align-items:center;gap:20px;">
+                <i class="ph ph-list" onclick="document.getElementById('sidebar').classList.toggle('collapsed')"
+                    style="font-size:24px; cursor:pointer;"></i>
+                <div style="font-family:'JetBrains Mono'; font-size:13px; color:var(--text-muted);">GAMELABS // <span
+                        id="breadVal" style="color:var(--theme); font-weight:700;">UNITY</span></div>
+            </div>
+            <div class="header-actions">
+                <div class="xp-pill"><i class="ph ph-star-four"></i> <span>2100 XP</span></div>
+            </div>
+        </header>
+
+        <div class="viewport" id="viewport"></div>
+    </main>
+
+    <script>
+        const DB = {
+            unity: {
+                theme: '--orange', title: 'Unity Development', desc: 'Build 2D and 3D games with C#.',
+                levels: [
+                    {
+                        title: 'Beginner', status: 'active', courses: [
+                            { t: 'Unity Basics', d: 'Interface and GameObjects.', img: 'https://placehold.co/600x400/f97316/ffffff?text=Unity+Basics', tag: 'Core' },
+                            { t: 'C# Scripting', d: 'Movement and Physics.', img: 'https://placehold.co/600x400/f97316/ffffff?text=C#+Scripting', tag: 'Code' }
+                        ]
+                    },
+                    {
+                        title: 'Advanced', status: 'locked', courses: [
+                            { t: 'Shaders', d: 'Visual effects.', img: 'https://placehold.co/600x400/f97316/ffffff?text=Shaders', tag: 'VFX' }
+                        ]
+                    }
+                ]
+            },
+            unreal: {
+                theme: '--blue', title: 'Unreal Engine 5', desc: 'Next-gen photorealistic graphics.',
+                levels: [
+                    {
+                        title: 'Blueprints', status: 'active', courses: [
+                            { t: 'Visual Scripting', d: 'Logic without code.', img: 'https://placehold.co/600x400/3b82f6/ffffff?text=Blueprints', tag: 'BP' }
+                        ]
+                    }
+                ]
+            },
+            cpp: {
+                theme: '--red', title: 'C++ Systems', desc: 'High-performance engine coding.',
+                levels: [
+                    {
+                        title: 'Memory', status: 'active', courses: [
+                            { t: 'Pointers & Refs', d: 'Memory management.', img: 'https://placehold.co/600x400/ef4444/ffffff?text=C++', tag: 'Mem' }
+                        ]
+                    }
+                ]
+            },
+            design: {
+                theme: '--purple', title: 'Game Design', desc: 'Mechanics, combat, and loops.',
+                levels: [
+                    {
+                        title: 'Theory', status: 'active', courses: [
+                            { t: 'Core Loops', d: 'Engagement cycles.', img: 'https://placehold.co/600x400/a855f7/ffffff?text=Game+Design', tag: 'UX' }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        const app = {
+            init: () => {
+                new Chart(document.getElementById('skillChart'), {
+                    type: 'radar',
+                    data: {
+                        labels: ['Logic', 'Art', 'Sound', 'Code', 'Design'],
+                        datasets: [{ data: [70, 40, 20, 90, 60], backgroundColor: 'rgba(245, 158, 11, 0.2)', borderColor: '#f59e0b', pointBackgroundColor: '#fff' }]
+                    },
+                    options: { scales: { r: { ticks: { display: false }, grid: { color: 'rgba(255,255,255,0.1)' }, pointLabels: { font: { size: 9 } } } }, plugins: { legend: { display: false } } }
+                });
+                app.load('unity');
+            },
+            load: (key, btn) => {
+                const data = DB[key];
+                document.documentElement.style.setProperty('--theme', `var(${data.theme})`);
+                document.documentElement.style.setProperty('--glow', `var(${data.theme}-g)`);
+                if (btn) { document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active')); btn.classList.add('active'); }
+
+                document.getElementById('breadVal').innerText = key.toUpperCase();
+                document.getElementById('breadVal').style.color = `var(${data.theme})`;
+
+                document.getElementById('viewport').innerHTML = `
+                    <div class="track-hero">
+                        <div style="font-size:11px; font-weight:800; border:1px solid var(--theme); color:var(--theme); display:inline-block; padding:5px 10px; border-radius:20px; margin-bottom:15px;">GAME TRACK</div>
+                        <h1 class="hero-title">${data.title}</h1>
+                        <p style="color:var(--text-muted); font-size:18px;">${data.desc}</p>
+                    </div>
+                    ${data.levels.map(lvl => `
+                        <div style="margin-bottom:60px;">
+                            <h3 style="font-size:24px; margin-bottom:20px; padding-bottom:10px; border-bottom:1px solid var(--border-dim);">${lvl.title} <span style="font-size:12px; background:#222; padding:4px 8px; border-radius:4px; vertical-align:middle;">${lvl.status}</span></h3>
+                            <div class="grid-courses">
+                                ${lvl.courses.map(c => `
+                                    <div class="card ${lvl.status === 'locked' ? 'locked-zone' : ''}">
+                                        <div class="card-thumb"><img src="${c.img}"></div>
+                                        <div class="card-body">
+                                            <div style="display:flex; gap:5px; margin-bottom:10px;"><span style="font-size:10px; padding:3px 6px; background:rgba(255,255,255,0.1); border-radius:4px;">${c.tag}</span></div>
+                                            <div class="c-title">${c.t}</div>
+                                            <div class="c-desc">${c.d}</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+            }
+        };
+        app.init();
+    </script>
+</body>
+
+</html>

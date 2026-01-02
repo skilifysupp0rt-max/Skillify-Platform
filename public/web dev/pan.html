@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skillify IDE | Professional</title>
+
+  <!-- SKILLIFY STANDARD INTEGRATION -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/ace.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/ext-language_tools.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.6.5/split.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://unpkg.com/prettier@2.8.8/standalone.js"></script>
+  <script src="https://unpkg.com/prettier@2.8.8/parser-html.js"></script>
+  <script src="https://unpkg.com/prettier@2.8.8/parser-postcss.js"></script>
+  <script src="https://unpkg.com/prettier@2.8.8/parser-babel.js"></script>
+
+  <style>
+    :root {
+      --bg-main: #050507;
+      --bg-sidebar: rgba(18, 18, 22, 0.5);
+      /* Glass-like sidebar */
+      --border: rgba(255, 255, 255, 0.08);
+      --accent: #6366f1;
+      /* Skillify Primary */
+      --text-primary: #ffffff;
+      --text-secondary: #9ca3af;
+      --font-ui: 'Plus Jakarta Sans', sans-serif;
+      --font-code: 'JetBrains Mono', monospace;
+    }
+
+    html[data-theme="light"] {
+      --bg-main: #ffffff;
+      --bg-sidebar: #f3f4f6;
+      --border: #e5e7eb;
+      --accent: #2563eb;
+      --text-primary: #1f2937;
+      --text-secondary: #6b7280;
+    }
+
+    * {
+      box-sizing: border-box;
+      outline: none;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--bg-main);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* LAYOUT */
+    .layout {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 25px);
+      position: relative;
+    }
+
+    .zen-mode .activity-bar,
+    .zen-mode .sidebar {
+      display: none !important;
+    }
+
+    /* ACTIVITY BAR */
+    .activity-bar {
+      width: 50px;
+      background: var(--bg-main);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 10px;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: 6px;
+      margin-bottom: 5px;
+      font-size: 18px;
+      transition: 0.2s;
+      position: relative;
+    }
+
+    .icon-btn:hover {
+      color: var(--text-primary);
+      background: rgba(125, 125, 125, 0.1);
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 220px;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 12px 15px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .current-project-name {
+      font-size: 13px;
+      color: var(--text-primary);
+      font-weight: 600;
+      padding: 0 15px 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-item {
+      padding: 6px 20px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--text-primary);
+      transition: 0.1s;
+    }
+
+    .file-item:hover {
+      background: rgba(125, 125, 125, 0.1);
+    }
+
+    .file-item.active {
+      background: rgba(125, 125, 125, 0.15);
+      color: var(--text-primary);
+      border-left: 2px solid var(--accent);
+    }
+
+    /* WORKSPACE */
+    .workspace {
+      flex: 1;
+      display: flex;
+    }
+
+    .editor-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-main);
+      min-width: 200px;
+    }
+
+    .editor-top {
+      height: 36px;
+      background: var(--bg-main);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-right: 10px;
+    }
+
+    .tabs {
+      display: flex;
+      height: 100%;
+    }
+
+    .tab {
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      color: var(--text-secondary);
+      border-top: 2px solid transparent;
+    }
+
+    .tab.active {
+      background: var(--bg-main);
+      color: var(--text-primary);
+      border-top-color: var(--accent);
+    }
+
+    .controls {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn {
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--bg-sidebar);
+      color: var(--text-primary);
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: rgba(125, 125, 125, 0.1);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .btn-danger {
+      color: #f85149;
+      border-color: #f85149;
+    }
+
+    .ace-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    #editor {
+      position: absolute;
+      inset: 0;
+    }
+
+    /* PREVIEW & CONSOLE */
+    .preview-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      min-width: 200px;
+      border-left: 1px solid var(--border);
+      position: relative;
+    }
+
+    .preview-bar {
+      height: 36px;
+      background: #f6f8fa;
+      border-bottom: 1px solid #d0d7de;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+    }
+
+    .console-drawer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 200px;
+      background: var(--bg-sidebar);
+      border-top: 1px solid var(--border);
+      z-index: 20;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .console-drawer.open {
+      transform: translateY(0);
+    }
+
+    .console-head {
+      padding: 8px 12px;
+      background: var(--bg-main);
+      color: var(--text-primary);
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .console-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      font-family: var(--font-code);
+      font-size: 12px;
+      color: var(--text-primary);
+    }
+
+    .log-row {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(125, 125, 125, 0.1);
+      display: flex;
+      gap: 8px;
+      word-break: break-all;
+    }
+
+    .console-input-row {
+      padding: 8px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .console-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-family: var(--font-code);
+      font-size: 12px;
+    }
+
+    /* MODALS */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(2px);
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.2s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: var(--bg-sidebar);
+      width: 500px;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      transform: scale(0.95);
+      transition: 0.2s;
+      display: flex;
+      flex-direction: column;
+      max-height: 85vh;
+      color: var(--text-primary);
+    }
+
+    .modal-overlay.active .modal-box {
+      transform: scale(1);
+    }
+
+    .modal-head {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .grid-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .project-list {
+      overflow-y: auto;
+      flex: 1;
+      border-top: 1px solid var(--border);
+      margin-top: 10px;
+    }
+
+    .project-row {
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .project-row:hover {
+      background: rgba(125, 125, 125, 0.1);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .status-bar {
+      height: 25px;
+      background: var(--accent);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      font-size: 11px;
+      z-index: 50;
+    }
+
+    .gutter {
+      background: var(--bg-main);
+      transition: 0.2s;
+    }
+
+    .gutter:hover {
+      background: var(--accent);
+    }
+
+    /* ASSETS */
+    .asset-area {
+      text-align: center;
+      border: 2px dashed var(--border);
+      padding: 20px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      cursor: pointer;
+    }
+
+    .asset-area:hover {
+      border-color: var(--accent);
+    }
+
+    /* WHITEBOARD */
+    #wbCanvas {
+      background: white;
+      border-radius: 4px;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .wb-tools {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      justify-content: center;
+    }
+
+    .color-swatch {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+
+    .color-swatch.active {
+      border-color: white;
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+
+    /* NOTES */
+    #projectNotesArea {
+      width: 100%;
+      height: 200px;
+      background: var(--bg-main);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 10px;
+      font-family: var(--font-ui);
+      font-size: 13px;
+      resize: none;
+      border-radius: 4px;
+    }
+
+    /* TIMELINE (NEW) */
+    .timeline-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    .timeline-time {
+      color: var(--text-secondary);
+    }
+  </style>
+
+    <!-- Video Learning System -->
+    <script src="/js/courseData.js"></script>
+    <script src="/js/videoSystem.js"></script>
+</head>
+
+<body>
+
+  <div class="layout" id="mainLayout">
+    <div class="activity-bar">
+      <div class="icon-btn" title="Back to Dashboard" onclick="location.href='../dashboard.html'"
+        style="color:#ef4444;"><i class="fa-solid fa-arrow-left"></i></div>
+      <div class="icon-btn active" title="Explorer" onclick="toggleSidebar()"><i class="fa-regular fa-file-code"></i>
+      </div>
+      <div class="icon-btn" title="Projects" onclick="openModal('modalProjects')"><i
+          class="fa-solid fa-folder-open"></i></div>
+      <div class="icon-btn" title="Time Travel (NEW)" onclick="openModal('modalHistory')"><i
+          class="fa-solid fa-clock-rotate-left"></i></div>
+      <div class="icon-btn" title="Whiteboard" onclick="openModal('modalWhiteboard')"><i
+          class="fa-solid fa-pen-to-square"></i></div>
+      <div class="icon-btn" title="Assets" onclick="openModal('modalAssets')"><i class="fa-solid fa-images"></i></div>
+      <div class="icon-btn" title="AI Helper" onclick="openModal('modalAI')"><i class="fa-solid fa-robot"></i></div>
+      <div class="icon-btn" title="Notes" onclick="openModal('modalNotes')"><i class="fa-regular fa-note-sticky"></i>
+      </div>
+      <div style="flex:1"></div>
+      <div class="icon-btn" title="Zen Mode" onclick="toggleZen()"><i class="fa-solid fa-expand"></i></div>
+      <div class="icon-btn" title="Settings" onclick="openModal('modalSettings')"><i class="fa-solid fa-gear"></i></div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <span>Active Project</span>
+        <div style="display:flex; gap:3px;">
+          <button class="btn" style="padding:2px 6px; font-size:10px;" title="Import" onclick="triggerImport()"><i
+              class="fa-solid fa-upload"></i></button>
+          <button class="btn" style="padding:2px 6px; font-size:10px;" title="Export Single HTML"
+            onclick="downloadSingle()"><i class="fa-brands fa-html5"></i></button>
+          <button class="btn" style="padding:2px 6px; font-size:10px;" title="Export ZIP"
+            onclick="downloadZip()">ZIP</button>
+        </div>
+      </div>
+      <div class="current-project-name" id="displayProjectName">Untitled Project</div>
+
+      <div class="file-tree">
+        <div class="file-item active" onclick="switchFile('html')"><i class="fa-brands fa-html5"
+            style="color:#e34c26"></i> index.html</div>
+        <div class="file-item" onclick="switchFile('css')"><i class="fa-brands fa-css3-alt" style="color:#563d7c"></i>
+          style.css</div>
+        <div class="file-item" onclick="switchFile('js')"><i class="fa-brands fa-js" style="color:#f1e05a"></i>
+          script.js</div>
+      </div>
+
+      <div class="sidebar-header" style="margin-top:auto;">Quick Actions</div>
+      <div style="padding:10px;">
+        <button class="btn" style="width:100%; margin-bottom:5px;" onclick="openModal('modalTemplates')">Load
+          Template</button>
+        <button class="btn" style="width:100%; margin-bottom:5px;" onclick="openModal('modalAssets')">Add Image</button>
+        <button class="btn btn-danger" style="width:100%;" onclick="resetProject()">Reset Code</button>
+      </div>
+    </div>
+
+    <div class="workspace" id="split-view">
+      <div class="editor-pane">
+        <div class="editor-top">
+          <div class="tabs">
+            <div class="tab active" id="tab-html" onclick="switchFile('html')">HTML</div>
+            <div class="tab" id="tab-css" onclick="switchFile('css')">CSS</div>
+            <div class="tab" id="tab-js" onclick="switchFile('js')">JS</div>
+          </div>
+          <div class="controls">
+            <button class="btn" onclick="toggleSound()" id="btnSound" title="Typing Sounds (NEW)"><i
+                class="fa-solid fa-volume-off"></i></button>
+            <button class="btn" onclick="editor.execCommand('find')"><i
+                class="fa-solid fa-magnifying-glass"></i></button>
+            <button class="btn" onclick="formatCode()"><i class="fa-solid fa-wand-magic-sparkles"></i> Format</button>
+            <button class="btn btn-primary" onclick="runCode()"><i class="fa-solid fa-play"></i> Run</button>
+          </div>
+        </div>
+        <div class="ace-wrap">
+          <div id="editor"></div>
+        </div>
+      </div>
+
+      <div class="preview-pane">
+        <div class="preview-bar">
+          <div style="display:flex; gap:6px;">
+            <button class="btn" onclick="toggleConsole()"><i class="fa-solid fa-terminal"></i> Console</button>
+          </div>
+          <div style="display:flex; gap:5px;">
+            <button class="btn" title="Pop Out Window" onclick="popOutPreview()"><i
+                class="fa-solid fa-arrow-up-right-from-square"></i></button>
+            <button class="btn" onclick="resizePreview('100%')"><i class="fa-solid fa-desktop"></i></button>
+            <button class="btn" onclick="resizePreview('375px')"><i
+                class="fa-solid fa-mobile-screen-button"></i></button>
+          </div>
+        </div>
+        <iframe id="previewFrame" style="width:100%; height:100%; border:none;"></iframe>
+
+        <div class="console-drawer" id="consoleDrawer">
+          <div class="console-head" onclick="toggleConsole()">
+            <span>JS Console</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="console-body" id="consoleLogs"></div>
+          <div class="console-input-row">
+            <i class="fa-solid fa-angle-right" style="color:var(--accent)"></i>
+            <input class="console-input" id="consoleInput" placeholder="Type JS code and press Enter..."
+              autocomplete="off">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <span><i class="fa-solid fa-infinity"></i> Omni Edition</span>
+    <span id="cursor-pos">Ln 1, Col 1</span>
+  </div>
+
+  <div class="modal-overlay" id="modalProjects">
+    <div class="modal-box">
+      <div class="modal-head">Projects <i class="fa-solid fa-xmark" style="cursor:pointer"
+          onclick="closeModal('modalProjects')"></i></div>
+      <div style="display:flex; gap:10px;">
+        <input id="newProjName" placeholder="New Project Name..."
+          style="flex:1; background:var(--bg-main); border:1px solid var(--border); padding:8px; color:var(--text-primary); border-radius:4px;">
+        <button class="btn btn-primary" onclick="createNewProject()">Create</button>
+      </div>
+      <div class="project-list" id="projectListContainer"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalHistory">
+    <div class="modal-box">
+      <div class="modal-head">Time Travel <i class="fa-solid fa-xmark" style="cursor:pointer"
+          onclick="closeModal('modalHistory')"></i></div>
+      <p style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">Snapshots are taken automatically when
+        you run code.</p>
+      <div class="project-list" id="historyList"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalWhiteboard">
+    <div class="modal-box" style="width:600px;">
+      <div class="modal-head">Whiteboard <i class="fa-solid fa-xmark" style="cursor:pointer"
+          onclick="closeModal('modalWhiteboard')"></i></div>
+      <div class="wb-tools">
+        <div class="color-swatch active" style="background:black" onclick="setWbColor('black', this)"></div>
+        <div class="color-swatch" style="background:#ef4444" onclick="setWbColor('#ef4444', this)"></div>
+        <div class="color-swatch" style="background:#3b82f6" onclick="setWbColor('#3b82f6', this)"></div>
+        <div class="color-swatch" style="background:#22c55e" onclick="setWbColor('#22c55e', this)"></div>
+        <button class="btn" onclick="clearWb()">Clear</button>
+        <button class="btn btn-primary" onclick="saveWb()">Save as Image</button>
+      </div>
+      <canvas id="wbCanvas" width="560" height="300"></canvas>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalNotes">
+    <div class="modal-box">
+      <div class="modal-head">Project Notes <i class="fa-solid fa-xmark" style="cursor:pointer"
+          onclick="closeModal('modalNotes')"></i></div>
+      <textarea id="projectNotesArea" placeholder="Write to-dos or ideas here..."></textarea>
+      <div style="text-align:right; margin-top:10px;">
+        <span style="font-size:12px; color:var(--text-secondary);">Saved automatically</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalAssets">
+    <div class="modal-box">
+      <div class="modal-head">Asset Encoder <i class="fa-solid fa-xmark" style="cursor:pointer"
+          onclick="closeModal('modalAssets')"></i></div>
+      <div class="asset-area" onclick="document.getElementById('assetInput').click()">
+        <i class="fa-solid fa-cloud-arrow-up" style="font-size:24px; margin-bottom:8px; color:var(--accent)"></i><br>
+        Click to Upload Image
+      </div>
+      <input type="file" id="assetInput" hidden accept="image/*" onchange="handleAsset(this)">
+      <div id="assetResult"
+        style="display:none; font-size:11px; background:rgba(0,0,0,0.3); padding:8px; max-height:100px; overflow:auto; word-break:break-all;">
+      </div>
+      <button class="btn" id="copyAssetBtn" style="display:none; margin-top:10px;" onclick="copyAsset()">Copy Image
+        Tag</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalSettings">
+    <div class="modal-box">
+      <div class="modal-head">Settings <i class="fa-solid fa-xmark" style="cursor:pointer"
+          onclick="closeModal('modalSettings')"></i></div>
+      <div style="padding:10px 0; border-bottom:1px solid var(--border); display:flex; justify-content:space-between;">
+        <span>Theme</span> <button class="btn" onclick="toggleTheme()" id="themeBtn">Switch to Light</button>
+      </div>
+      <div style="padding:10px 0; border-bottom:1px solid var(--border); display:flex; justify-content:space-between;">
+        <span>Backup</span> <button class="btn" onclick="backupProject()">Export JSON</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalTemplates">
+    <div class="modal-box">
+      <div class="modal-head">Templates <i class="fa-solid fa-xmark" style="cursor:pointer"
+          onclick="closeModal('modalTemplates')"></i></div>
+      <div class="grid-btns">
+        <button class="btn" onclick="loadTpl('starter')">Modern Starter</button>
+        <button class="btn" onclick="loadTpl('landing')">SaaS Landing</button>
+        <button class="btn" onclick="loadTpl('dashboard')">Dashboard</button>
+        <button class="btn" style="background:#1f6feb; border-color:#1f6feb; color:white;"
+          onclick="loadTpl('todo')">Todo App</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalAI">
+    <div class="modal-box">
+      <div class="modal-head">AI Helper <i class="fa-solid fa-xmark" style="cursor:pointer"
+          onclick="closeModal('modalAI')"></i></div>
+      <div class="grid-btns">
+        <button class="btn" onclick="aiInsert('header')">Header</button>
+        <button class="btn" onclick="aiInsert('footer')">Footer</button>
+        <button class="btn" onclick="aiInsert('form')">Form</button>
+        <button class="btn" onclick="aiInsert('hero')">Hero</button>
+        <button class="btn" onclick="aiInsert('card')">Card</button>
+        <button class="btn" onclick="aiInsert('nav')">Navbar</button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="jsonImport" class="hidden" accept=".json" onchange="handleImport(this)">
+
+  <script>
+    /* ================= TPL DATA ================= */
+    const TPL = {
+      starter: { html: `<!doctype html>\n<html>\n<head><title>App</title></head>\n<body>\n  <div style="text-align:center; padding:50px;">\n    <h1>Hello World</h1>\n    <p>Omni Edition</p>\n    <button class="btn">Click Me</button>\n  </div>\n</body>\n</html>`, css: `body{font-family:sans-serif; background:#0d1117; color:white; margin:0} .btn{padding:10px 20px; background:#58a6ff; border:none; border-radius:6px; color:white; cursor:pointer;}`, js: `document.querySelector('.btn').onclick = () => alert('Welcome!');` },
+      landing: { html: `<!doctype html><html><body><nav>MyBrand</nav><header><h1>Launch Your Idea</h1><button>Get Started</button></header></body></html>`, css: `body{margin:0; font-family:sans-serif; background:#111; color:white} nav{padding:20px; border-bottom:1px solid #333} header{text-align:center; padding:100px 20px;} button{padding:12px 24px; background:blue; color:white; border:none; border-radius:4px; font-size:16px;}`, js: `console.log("Landing Page Ready");` },
+      dashboard: { html: `<!doctype html><html><body><div class="flex"><aside>Menu</aside><main><h1>Dashboard</h1><div class="card">Stats: 100%</div></main></div></body></html>`, css: `.flex{display:flex; height:100vh} aside{width:200px; background:#222; color:white; padding:20px} main{flex:1; background:#f0f0f0; padding:20px} .card{background:white; padding:20px; border-radius:8px;}`, js: `console.log("Dashboard Loaded");` },
+      todo: { html: `<div class="app"><nav class="nav"><button onclick="showPage('home')">Home</button><button onclick="showPage('tasks')">Tasks</button><button onclick="showPage('done')">Completed</button></nav><div id="page-home" class="page"><h2>Welcome</h2><p>This is your Todo App. Navigate to Tasks to begin.</p></div><div id="page-tasks" class="page" style="display:none;"><h2>My Tasks</h2><div class="input-group"><input id="taskInput" placeholder="New Task..."><button id="addTask">Add</button></div><ul id="taskList"></ul></div><div id="page-done" class="page" style="display:none;"><h2>Completed</h2><ul id="doneList"></ul></div></div>`, css: `body{font-family:Inter,sans-serif;background:#111;color:white;padding:20px}.nav{display:flex;gap:10px;margin-bottom:20px;border-bottom:1px solid #333;padding-bottom:10px}.nav button{background:#222;border:1px solid #444;color:white;padding:5px 15px;cursor:pointer;border-radius:4px}.nav button:hover{background:#333}.input-group{display:flex;gap:10px;margin-bottom:15px}input{padding:8px;border-radius:4px;border:1px solid #444;background:#222;color:white}li{background:#1c1c1c;padding:8px;margin-bottom:5px;border-radius:4px;cursor:pointer}li:hover{background:#2a2a2a}`, js: `function showPage(id){document.querySelectorAll('.page').forEach(p=>p.style.display='none');document.getElementById('page-'+id).style.display='block';}document.getElementById('addTask').onclick=()=>{const input=document.getElementById('taskInput');const val=input.value.trim();if(!val)return;const li=document.createElement('li');li.textContent=val;li.onclick=()=>{const doneLi=document.createElement('li');doneLi.textContent=val+' (Done)';document.getElementById('doneList').appendChild(doneLi);li.remove();};document.getElementById('taskList').appendChild(li);input.value='';};console.log("Todo App Ready");` }
+    };
+
+    /* ================= CORE LOGIC ================= */
+    const StorageKey = "cosmos_omni_v1";
+    let Workspace = { projects: {}, activeId: null, theme: 'dark' };
+
+    try { const raw = localStorage.getItem(StorageKey); if (raw) Workspace = JSON.parse(raw); else initFirst(); } catch (e) { initFirst(); }
+    function initFirst() { const id = "p_" + Date.now(); Workspace.projects[id] = { id, name: "My First Project", created: Date.now(), html: TPL.starter.html, css: TPL.starter.css, js: TPL.starter.js, notes: "", snapshots: [] }; Workspace.activeId = id; save(); }
+    function save() { localStorage.setItem(StorageKey, JSON.stringify(Workspace)); }
+    function getActive() { return Workspace.projects[Workspace.activeId]; }
+
+    /* ================= EDITOR ================= */
+    const editor = ace.edit("editor");
+    editor.setTheme("ace/theme/one_dark");
+    editor.session.setMode("ace/mode/html");
+    editor.setOptions({ fontFamily: "JetBrains Mono", fontSize: "14px", enableBasicAutocompletion: true, enableLiveAutocompletion: true, showPrintMargin: false, wrap: true });
+    let activeType = 'html';
+
+    function loadProject() {
+      const p = getActive();
+      document.getElementById('displayProjectName').textContent = p.name;
+      document.getElementById('projectNotesArea').value = p.notes || "";
+      if (!p.snapshots) p.snapshots = []; // Migration
+      editor.setValue(p[activeType], -1);
+      editor.session.setMode("ace/mode/" + (activeType === 'js' ? 'javascript' : activeType));
+      applyTheme(Workspace.theme);
+      runCode(false); // don't snapshot on initial load
+    }
+
+    editor.session.on('change', () => {
+      const p = getActive();
+      p[activeType] = editor.getValue();
+      save();
+      if (soundEnabled) playTypeSound();
+    });
+    document.getElementById('projectNotesArea').addEventListener('input', (e) => { const p = getActive(); p.notes = e.target.value; save(); });
+
+    function switchFile(type) { activeType = type; updateFileUI(); loadProject(); }
+    function updateFileUI() {
+      document.querySelectorAll('.file-item').forEach(f => f.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      const map = { html: 0, css: 1, js: 2 };
+      document.querySelectorAll('.file-item')[map[activeType]].classList.add('active');
+      document.getElementById('tab-' + activeType).classList.add('active');
+    }
+
+    /* ================= SOUND ENGINE (NEW) ================= */
+    let soundEnabled = false;
+    let audioCtx = null;
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const btn = document.getElementById('btnSound');
+      btn.innerHTML = soundEnabled ? '<i class="fa-solid fa-volume-high"></i>' : '<i class="fa-solid fa-volume-off"></i>';
+      btn.style.color = soundEnabled ? 'var(--accent)' : 'var(--text-secondary)';
+    }
+    function playTypeSound() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      // Simple "Click" synthesis
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+    }
+
+    /* ================= TIME TRAVEL (NEW) ================= */
+    function takeSnapshot() {
+      const p = getActive();
+      if (!p.snapshots) p.snapshots = [];
+      if (p.snapshots.length > 20) p.snapshots.shift(); // keep last 20
+      p.snapshots.push({
+        time: Date.now(),
+        html: p.html, css: p.css, js: p.js
+      });
+      save();
+    }
+    function renderHistory() {
+      const p = getActive();
+      const list = document.getElementById('historyList');
+      list.innerHTML = '';
+      if (!p.snapshots || p.snapshots.length === 0) { list.innerHTML = '<div style="padding:10px; color:#666;">No snapshots yet. Run code to create one.</div>'; return; }
+
+      [...p.snapshots].reverse().forEach((s, i) => {
+        const row = document.createElement('div');
+        row.className = 'timeline-row';
+        row.innerHTML = `
+      <span class="timeline-time">${new Date(s.time).toLocaleTimeString()}</span>
+      <button class="btn" style="font-size:10px;" onclick="restoreSnapshot(${p.snapshots.length - 1 - i})">Restore</button>
+    `;
+        list.appendChild(row);
+      });
+    }
+    function restoreSnapshot(index) {
+      const p = getActive();
+      const s = p.snapshots[index];
+      if (confirm(`Restore version from ${new Date(s.time).toLocaleTimeString()}?`)) {
+        p.html = s.html; p.css = s.css; p.js = s.js;
+        save();
+        loadProject();
+        closeModal('modalHistory');
+      }
+    }
+
+    /* ================= RUNNER & CONSOLE ================= */
+    function runCode(doSnapshot = true) {
+      if (doSnapshot) takeSnapshot();
+      const p = getActive();
+      const frame = document.getElementById('previewFrame');
+      document.getElementById('consoleLogs').innerHTML = '';
+      const script = `<script>(function(){const s=(t,a)=>{try{window.parent.postMessage({type:'c',m:t,a:a.map(x=>String(x))},'*')}catch(e){}};['log','warn','error'].forEach(k=>{const o=console[k];console[k]=(...a)=>{s(k,a);o.apply(console,a)}});window.onerror=m=>s('error',[m])})()<\/script>`;
+      const src = `<!doctype html><html><head><style>${p.css}</style></head><body>${p.html}${script}<script>${p.js}<\/script></body></html>`;
+      frame.src = URL.createObjectURL(new Blob([src], { type: 'text/html' }));
+    }
+
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'c') {
+        const box = document.getElementById('consoleLogs');
+        const row = document.createElement('div');
+        row.className = 'log-row';
+        row.style.color = e.data.m === 'error' ? '#f85149' : 'inherit';
+        row.innerText = `> ${e.data.a.join(' ')}`;
+        box.appendChild(row);
+      }
+    });
+
+    document.getElementById('consoleInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const c = e.target.value; if (!c) return;
+        try { document.getElementById('previewFrame').contentWindow.eval(c); } catch (e) { }
+        e.target.value = '';
+      }
+    });
+    function toggleConsole() { document.getElementById('consoleDrawer').classList.toggle('open'); }
+
+    /* ================= WHITEBOARD ================= */
+    const cvs = document.getElementById('wbCanvas');
+    const ctx = cvs.getContext('2d');
+    let painting = false; let wbColor = 'black';
+    cvs.addEventListener('mousedown', e => { painting = true; drawP(e) });
+    cvs.addEventListener('mouseup', () => { painting = false; ctx.beginPath() });
+    cvs.addEventListener('mousemove', drawP);
+    function drawP(e) { if (!painting) return; const r = cvs.getBoundingClientRect(); ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = wbColor; ctx.lineTo(e.clientX - r.left, e.clientY - r.top); ctx.stroke(); ctx.beginPath(); ctx.moveTo(e.clientX - r.left, e.clientY - r.top); }
+    function setWbColor(c, el) { wbColor = c; document.querySelectorAll('.color-swatch').forEach(d => d.classList.remove('active')); el.classList.add('active'); }
+    function clearWb() { ctx.clearRect(0, 0, cvs.width, cvs.height); }
+    function saveWb() { cvs.toBlob(b => { const t = `<img src="${cvs.toDataURL()}" style="border:1px solid #ccc">`; const r = document.getElementById('assetResult'); r.style.display = 'block'; r.textContent = t; document.getElementById('modalAssets').classList.add('active'); closeModal('modalWhiteboard'); }); }
+
+    /* ================= FEATURES ================= */
+    function handleAsset(i) { const f = i.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { const t = `<img src="${e.target.result}" style="max-width:100%;">`; const res = document.getElementById('assetResult'); res.style.display = 'block'; res.textContent = t; document.getElementById('copyAssetBtn').style.display = 'inline-block'; }; r.readAsDataURL(f); }
+    function copyAsset() { navigator.clipboard.writeText(document.getElementById('assetResult').textContent); closeModal('modalAssets'); alert("Copied!"); }
+    function toggleZen() { document.getElementById('mainLayout').classList.toggle('zen-mode'); editor.resize(); }
+    function popOutPreview() { const p = getActive(); const w = window.open("", "_blank"); w.document.write(`<!doctype html><html><head><style>${p.css}</style></head><body>${p.html}<script>${p.js}<\/script></body></html>`); }
+    function downloadSingle() { const p = getActive(); const s = `<!doctype html><html><head><meta charset="utf-8"><title>${p.name}</title><style>${p.css}</style></head><body>${p.html}<script>${p.js}<\/script></body></html>`; saveAs(new Blob([s], { type: "text/html;charset=utf-8" }), p.name.replace(/\s+/g, '_') + ".html"); }
+
+    /* ================= PROJECT MANAGER ================= */
+    function renderProjList() { const b = document.getElementById('projectListContainer'); b.innerHTML = ''; Object.values(Workspace.projects).sort((a, b) => b.created - a.created).forEach(p => { const d = document.createElement('div'); d.className = 'project-row'; const a = p.id === Workspace.activeId; d.style.background = a ? 'rgba(88,166,255,0.1)' : ''; d.innerHTML = `<div class="project-info" onclick="switchProj('${p.id}')" style="cursor:pointer;flex:1"><div class="p-name">${p.name} ${a ? '(Active)' : ''}</div><div class="p-date">${new Date(p.created).toLocaleDateString()}</div></div><button class="btn btn-danger" style="padding:4px 8px;" onclick="delProj('${p.id}')"><i class="fa-solid fa-trash"></i></button>`; b.appendChild(d); }); }
+    function createNewProject() { const n = document.getElementById('newProjName').value || "Project"; const id = "p_" + Date.now(); Workspace.projects[id] = { id, name: n, created: Date.now(), html: TPL.starter.html, css: TPL.starter.css, js: TPL.starter.js, notes: "", snapshots: [] }; switchProj(id); }
+    function switchProj(id) { Workspace.activeId = id; save(); loadProject(); closeModal('modalProjects'); }
+    function delProj(id) { if (Object.keys(Workspace.projects).length <= 1) return alert("Keep one project."); if (confirm("Delete?")) { delete Workspace.projects[id]; if (id === Workspace.activeId) Workspace.activeId = Object.keys(Workspace.projects)[0]; save(); loadProject(); renderProjList(); } }
+    function openModal(id) { document.getElementById(id).classList.add('active'); if (id === 'modalProjects') renderProjList(); if (id === 'modalHistory') renderHistory(); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function loadTpl(k) { const t = TPL[k]; if (t) { const p = getActive(); p.html = t.html; p.css = t.css; p.js = t.js; save(); loadProject(); closeModal('modalTemplates'); } }
+    function aiInsert(t) { const s = { header: '<header style="padding:20px; text-align:center; background:#222; color:white;"><h1>Title</h1></header>', footer: '<footer style="padding:20px; text-align:center; background:#222; color:white; margin-top:50px;">&copy; 2024</footer>' }; editor.insert(s[t] || ``); closeModal('modalAI'); }
+    function formatCode() { try { const v = prettier.format(editor.getValue(), { parser: activeType === 'js' ? 'babel' : activeType, plugins: prettierPlugins }); editor.setValue(v, -1); } catch (e) { } }
+    function resetProject() { if (confirm("Reset?")) loadTpl('starter'); }
+    function toggleSidebar() { document.getElementById('sidebar').style.display = document.getElementById('sidebar').style.display === 'none' ? 'flex' : 'none'; editor.resize(); }
+    function resizePreview(w) { document.getElementById('previewFrame').style.width = w; }
+    function toggleTheme() { Workspace.theme = Workspace.theme === 'dark' ? 'light' : 'dark'; applyTheme(Workspace.theme); save(); }
+    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); document.getElementById('themeBtn').textContent = t === 'light' ? 'Switch to Dark' : 'Switch to Light'; editor.setTheme(t === 'light' ? "ace/theme/chrome" : "ace/theme/one_dark"); }
+    function triggerImport() { document.getElementById('jsonImport').click(); }
+    function handleImport(i) { const f = i.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try { const d = JSON.parse(e.target.result); d.id = "i_" + Date.now(); Workspace.projects[d.id] = d; switchProj(d.id); } catch (x) { } }; r.readAsText(f); }
+    function backupProject() { saveAs(new Blob([JSON.stringify(getActive())], { type: "application/json" }), getActive().name + ".json"); }
+    function downloadZip() { const p = getActive(); const z = new JSZip(); let h = p.html; if (!h.includes('<!doctype')) h = `<!doctype html><html><head><style>${p.css}</style></head><body>${p.html}<script src="script.js"><\/script></body></html>`; z.file("index.html", h); z.file("style.css", p.css); z.file("script.js", p.js); z.generateAsync({ type: "blob" }).then(c => saveAs(c, p.name + ".zip")); }
+
+    Split(['.editor-pane', '.preview-pane'], { sizes: [50, 50], minSize: 100, gutterSize: 4 });
+    loadProject();
+  </script>
+</body>
+
+</html>

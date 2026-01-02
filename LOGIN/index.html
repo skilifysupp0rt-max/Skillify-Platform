@@ -1,0 +1,936 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sign in · Skillify</title>
+
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <div class="particles">
+    <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <div class="wrap">
+    <div class="card" role="application" aria-labelledby="auth-title">
+      <div class="panels">
+        <div class="panel forms" aria-hidden="false">
+          <div style="max-width:420px;width:100%">
+
+            <div style="margin-bottom:12px">
+              <div class="headline"> <span id="welcomeTyped"> </span> <span class="typed" id="typedSpan"></span></div>
+              <div style="color:var(--muted);font-size:15px;margin-bottom:8px">ALL In One Platform For Learning , Skills
+                And Fun .</div>
+            </div>
+
+            <form id="form-login" class="form active" aria-label="login form">
+              <h2 id="auth-title">Sign in</h2>
+              <div id="login-warning" class="note" style="display:none;color:var(--danger)"></div>
+
+              <div class="field">
+                <input id="loginUsername" name="username" placeholder="Username or email" autocomplete="username"
+                  required>
+                <i class='bx bx-user icon' aria-hidden="true"></i>
+              </div>
+
+              <div class="field">
+                <input id="loginPassword" name="password" type="password" placeholder="Password"
+                  autocomplete="current-password" required>
+                <i id="togglePwd1" class='bx bx-hide icon' style="cursor:pointer" title="Show / hide password"></i>
+              </div>
+
+              <div class="row actions">
+                <button id="btnLogin" class="btn" type="submit"><i class='bx bx-log-in'></i><span>Sign
+                    In</span></button>
+                <label class="remember"><input id="rememberChk" type="checkbox"> Remember me</label>
+              </div>
+              <div class="links small">
+                <a data-show="register">Create account</a>
+                <a data-show="forgot">Forgot password?</a>
+              </div>
+
+              <a href="http://localhost:5000/auth/google" class="btn-social">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
+                <span>Continue with Google</span>
+              </a>
+            </form>
+
+            <form id="form-register" class="form" aria-label="register form">
+              <h2>Create account</h2>
+              <div id="register-note" class="note" style="display:none;"></div>
+
+              <div class="field">
+                <input id="regUsername" name="username" placeholder="Username" autocomplete="username" required>
+                <i class='bx bx-user icon'></i>
+              </div>
+
+              <div class="field" style="position:relative">
+                <input id="regEmail" name="email" type="email" placeholder="Email" autocomplete="email" required>
+                <i class='bx bx-envelope icon'></i>
+              </div>
+
+              <div class="field" id="otpField" style="display:none; position:relative">
+                <input id="regOtp" name="otp" placeholder="Enter OTP code" autocomplete="off" maxlength="8">
+                <i id="otpStateIcon" class='bx'
+                  style="position:absolute;left:10px;top:50%;transform:translateY(-50%);display:none"></i>
+                <div id="otpInfo" class="small" style="margin-top:6px;display:none">Code valid for <strong
+                    id="otpTimer">02:00</strong></div>
+              </div>
+
+              <div class="field">
+                <input id="regPassword" name="password" type="password" placeholder="Password"
+                  autocomplete="new-password" required>
+                <i id="togglePwd2" class='bx bx-hide icon' style="cursor:pointer"></i>
+              </div>
+
+              <div class="strength-meter">
+                <div id="strength-bar" class="strength-bar"></div>
+              </div>
+              <div id="strength-text" class="small" style="margin-top:4px; font-size:11px; color:var(--muted)"></div>
+
+              <div class="row actions" style="margin-top:12px;">
+                <button id="btnRegister" type="submit" class="btn"><i
+                    class='bx bx-user-plus'></i><span>Create</span></button>
+                <button id="btnRegisterGuest" type="button" class="btn ghost" title="Quick demo (no server)"><i
+                    class='bx bx-run'></i><span class="cardoo">Demo</span></button>
+              </div>
+
+              <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+                <button id="btnSendOtpInline" type="button" class="btn ghost" style="padding:8px 12px"><i
+                    class='bx bx-mail-send'></i><span id="btnSendOtpLabel" class="cardoo">Send Code</span></button>
+                <div id="sendCooldownNote" class="small" style="color:var(--muted)"></div>
+              </div>
+
+              <div class="links small">
+                <a data-show="login">Back to login</a>
+              </div>
+
+              <div class="note" id="regNoteText">A confirmation OTP will be sent. Account inactive until email
+                verification.</div>
+            </form>
+
+            <form id="form-forgot" class="form" aria-label="forgot password form">
+              <h2>Forgot password</h2>
+              <div id="forgot-note" class="note" style="display:none;"></div>
+
+              <div class="field" id="forgot-step-email" style="position:relative">
+                <input id="forgotEmail" name="email" type="email" placeholder="Your account email" autocomplete="email"
+                  required>
+                <i class='bx bx-envelope icon'></i>
+              </div>
+
+              <div id="forgot-step-otp" style="display:none;margin-top:6px">
+                <div class="field" style="position:relative">
+                  <input id="forgotOtp" name="forgotOtp" placeholder="Enter OTP code" autocomplete="off" maxlength="8">
+                  <i id="forgotOtpState" class='bx'
+                    style="position:absolute;left:10px;top:50%;transform:translateY(-50%);display:none"></i>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+                  <button id="btnResendForgot" type="button" class="btn ghost"><i class='bx bx-revision'></i><span
+                      style="font-weight:700;margin-left:6px">Resend</span></button>
+                  <div id="forgot-otp-info" class="small" style="color:var(--muted);margin-left:6px;display:none">Code
+                    valid for <strong id="forgotOtpTimer">02:00</strong></div>
+                </div>
+              </div>
+
+              <div id="forgot-step-newpass" style="display:none;margin-top:12px">
+                <div class="field">
+                  <input id="forgotNewPassword" type="password" placeholder="New password" autocomplete="new-password">
+                  <i class='bx bx-hide icon' id="toggleForgotPwd" style="cursor:pointer"></i>
+                </div>
+                <div class="field">
+                  <input id="forgotNewPasswordConfirm" type="password" placeholder="Confirm new password"
+                    autocomplete="new-password">
+                  <i class='bx bx-hide icon' id="toggleForgotPwd2" style="cursor:pointer"></i>
+                </div>
+                <div class="note small" id="forgot-note-bottom" style="margin-top:6px;color:var(--muted)"></div>
+              </div>
+
+              <div class="row actions" style="margin-top:10px">
+                <button id="btnForgot" class="btn" type="button"><i class='bx bx-mail-send'></i><span
+                    id="btnSendForgotLabel">Send reset OTP</span></button>
+              </div>
+
+              <div class="links small" style="margin-top:10px">
+                <a data-show="login">Back to login</a>
+              </div>
+            </form>
+
+            <form id="form-reset" class="form" aria-label="reset password form">
+              <h2>Reset password</h2>
+              <div class="field"><input id="resetUsername" readonly placeholder="username"></div>
+              <div class="field"><input id="resetToken" readonly placeholder="token"></div>
+              <div class="field">
+                <input id="newPassword" type="password" placeholder="New password" autocomplete="new-password" required>
+                <i id="togglePwd3" class='bx bx-hide icon' style="cursor:pointer"></i>
+              </div>
+              <div class="field">
+                <input id="newPasswordConfirm" type="password" placeholder="Confirm new password"
+                  autocomplete="new-password" required>
+              </div>
+              <div class="row actions">
+                <button id="btnReset" class="btn" type="submit"><i class='bx bx-reset'></i><span>Reset</span></button>
+              </div>
+              <div class="links small">
+                <a data-show="login">Back to login</a>
+              </div>
+            </form>
+
+          </div>
+        </div>
+
+        <div class="panel info" aria-hidden="false">
+          <div class="info-content" role="note">
+            <h1 id="info-title">Welcome To Skillify </h1>
+            <p id="info-desc">ALL In One Platform For Learning , Skills And Fun .</p>
+
+            <div class="info-cta">
+              <button id="toggleDark" class="btn ghost"><i class='bx bx-moon'></i><span>Theme</span></button>
+              <button id="btnSupport" class="btn ghost"><i class='bx bx-help-circle'></i><span>Need
+                  help?</span></button>
+            </div>
+
+            <div class="support small">Support: <a href="mailto:skillify-support@gmail.com"
+                id="supportLink">skillify-support@gmail.com</a></div>
+            <div class="support small" style="margin-top:10px">Verification OTP shown here after register:</div>
+            <div id="email-verif-msg" class="note" style="margin-top:6px;display:none;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <script>
+    /* ================ CONFIG ================ */
+    const API_BASE = 'http://localhost:5000'; // Changed from /api to root
+    window.LOGIN_STATE = { loggedIn: false, username: null, verified: false, token: null };
+
+    /* ================ EDITIONS LOGIC (EFFECTS) ================ */
+
+    /* EDITION 3: Confetti Trigger */
+    function triggerConfetti() {
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#e46033', '#1f8ef1', '#ffffff']
+      });
+    }
+
+    /* EDITION 5: Shake Input Helper */
+    function shakeInput(element) {
+      const field = element.closest('.field');
+      if (field) {
+        field.classList.add('shake');
+        setTimeout(() => field.classList.remove('shake'), 400);
+      }
+    }
+
+    /* EDITION 7: Simple Success Audio (Data URI for silence/beep placeholder - optional) */
+    // You can replace this with a real sound file URL if you like
+    const successBeep = new Audio('https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3');
+    function playSuccessSound() {
+      try { successBeep.volume = 0.2; successBeep.play().catch(() => { }); } catch (e) { }
+    }
+
+
+    /* ================ ENHANCED VALIDATION & UX ================ */
+
+    // Real-time email validation
+    function validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    }
+
+    function showFieldValidation(field, isValid, message = '') {
+      const input = field.querySelector('input');
+      const validationIcon = field.querySelector('.validation-icon') || createValidationIcon(field);
+      const tooltip = field.querySelector('.field-tooltip') || createTooltip(field);
+
+      input.classList.remove('valid', 'invalid');
+      validationIcon.classList.remove('valid', 'invalid', 'show');
+      tooltip.classList.remove('show');
+
+      if (isValid === true) {
+        input.classList.add('valid');
+        validationIcon.classList.add('valid', 'show');
+        validationIcon.className = 'bx bx-check-circle validation-icon valid show';
+      } else if (isValid === false) {
+        input.classList.add('invalid');
+        validationIcon.classList.add('invalid', 'show');
+        validationIcon.className = 'bx bx-x-circle validation-icon invalid show';
+        if (message) {
+          tooltip.textContent = message;
+          tooltip.classList.add('show');
+        }
+      }
+    }
+
+    function createValidationIcon(field) {
+      const icon = document.createElement('i');
+      icon.className = 'bx validation-icon';
+      field.appendChild(icon);
+      return icon;
+    }
+
+    function createTooltip(field) {
+      const tooltip = document.createElement('div');
+      tooltip.className = 'field-tooltip';
+      field.appendChild(tooltip);
+      return tooltip;
+    }
+
+    // Enhanced password visibility toggle
+    function setupPasswordToggle(toggleId, inputId) {
+      const toggle = document.getElementById(toggleId);
+      const input = document.getElementById(inputId);
+
+      if (!toggle || !input) return;
+
+      toggle.addEventListener('click', () => {
+        const isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        toggle.className = isHidden ? 'bx bx-show icon' : 'bx bx-hide icon';
+        toggle.title = isHidden ? 'Hide password' : 'Show password';
+      });
+    }
+
+    // Setup all password toggles
+    function setupAllPasswordToggles() {
+      setupPasswordToggle('togglePwd1', 'loginPassword');
+      setupPasswordToggle('togglePwd2', 'regPassword');
+      setupPasswordToggle('toggleForgotPwd', 'forgotNewPassword');
+      setupPasswordToggle('toggleForgotPwd2', 'forgotNewPasswordConfirm');
+      setupPasswordToggle('togglePwd3', 'newPassword');
+    }
+
+    // Real-time email validation setup
+    function setupEmailValidation() {
+      const emailFields = ['regEmail', 'forgotEmail'];
+
+      emailFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (!field) return;
+
+        const parentField = field.closest('.field');
+
+        field.addEventListener('input', () => {
+          const email = field.value.trim();
+          if (email.length === 0) {
+            showFieldValidation(parentField, null);
+            return;
+          }
+
+          const isValid = validateEmail(email);
+          let message = '';
+
+          if (!isValid) {
+            message = 'Please enter a valid email address';
+          }
+
+          showFieldValidation(parentField, isValid, message);
+        });
+
+        field.addEventListener('blur', () => {
+          const email = field.value.trim();
+          if (email.length > 0 && !validateEmail(email)) {
+            showFieldValidation(parentField, false, 'Please enter a valid email address');
+          }
+        });
+      });
+    }
+
+    // Enhanced button loading with better animation
+    function setButtonLoading(btn, loading = true, label = null) {
+      if (!btn) return;
+
+      if (loading) {
+        btn.dataset.old = btn.innerHTML;
+        btn.disabled = true;
+        btn.classList.add('loading');
+
+        // Create loading spinner
+        const spinner = document.createElement('i');
+        spinner.className = 'bx bx-loader bx-spin';
+
+        const text = document.createElement('span');
+        text.textContent = ` ${label || 'Working...'} `;
+
+        btn.innerHTML = '';
+        btn.appendChild(spinner);
+        btn.appendChild(text);
+      } else {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        if (btn.dataset.old) {
+          btn.innerHTML = btn.dataset.old;
+          delete btn.dataset.old;
+        }
+      }
+    }
+
+    // Enhanced toast notifications
+    function showToast(type, text, timeout = 4200) {
+      const container = document.getElementById('toasts');
+      const el = document.createElement('div');
+      el.className = `toast ${type === 'success' ? 'success' : 'error'}`;
+
+      const icon = type === 'success' ? 'bx-check-circle' : 'bx-error';
+      el.innerHTML = `
+    <i class='bx ${icon}'></i>
+    <div style="flex:1">${text}</div>
+    <button class="bx bx-x" style="background:none;border:none;color:inherit;cursor:pointer;padding:0;margin-left:8px;" onclick="this.parentElement.remove()"></button>
+  `;
+
+      container.appendChild(el);
+      requestAnimationFrame(() => el.classList.add('show'));
+
+      setTimeout(() => {
+        el.classList.remove('show');
+        setTimeout(() => el.remove(), 300);
+      }, timeout);
+    }
+
+    // Initialize all enhancements
+    document.addEventListener('DOMContentLoaded', () => {
+      setupAllPasswordToggles();
+      setupEmailValidation();
+      preventMultipleSubmissions();
+    });
+
+    /* ================ SECURITY ENHANCEMENTS ================ */
+
+    // Prevent multiple form submissions
+    function preventMultipleSubmissions() {
+      const forms = document.querySelectorAll('form');
+      forms.forEach(form => {
+        let isSubmitting = false;
+
+        form.addEventListener('submit', (e) => {
+          if (isSubmitting) {
+            e.preventDefault();
+            return false;
+          }
+          isSubmitting = true;
+
+          // Re-enable after 5 seconds as fallback
+          setTimeout(() => {
+            isSubmitting = false;
+          }, 5000);
+        });
+      });
+    }
+
+    // Rate limiting for login attempts
+    let loginAttempts = 0;
+    let loginLockedUntil = 0;
+
+    function checkLoginRateLimit() {
+      const now = Date.now();
+
+      if (loginLockedUntil > now) {
+        const remaining = Math.ceil((loginLockedUntil - now) / 1000);
+        showToast('error', `Too many login attempts. Try again in ${remaining} seconds.`);
+        return false;
+      }
+
+      if (loginAttempts >= 5) {
+        loginLockedUntil = now + (5 * 60 * 1000); // 5 minutes
+        loginAttempts = 0;
+        showToast('error', 'Too many failed attempts. Account locked for 5 minutes.');
+        return false;
+      }
+
+      return true;
+    }
+
+    function recordLoginAttempt(success) {
+      if (success) {
+        loginAttempts = 0;
+      } else {
+        loginAttempts++;
+      }
+    }
+
+    // Enhanced password strength requirements
+    function validatePasswordStrength(password) {
+      const requirements = {
+        length: password.length >= 8,
+        uppercase: /[A-Z]/.test(password),
+        lowercase: /[a-z]/.test(password),
+        numbers: /\d/.test(password),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+      };
+
+      const passed = Object.values(requirements).filter(Boolean).length;
+
+      return {
+        score: passed / 5,
+        requirements,
+        passed,
+        message: getPasswordStrengthMessage(passed)
+      };
+    }
+
+    function getPasswordStrengthMessage(passed) {
+      if (passed === 5) return 'Very strong password';
+      if (passed === 4) return 'Strong password';
+      if (passed === 3) return 'Medium strength';
+      if (passed === 2) return 'Weak password';
+      return 'Very weak password';
+    }
+
+    /* ================ CORE UI HELPERS ================ */
+
+    /* ===== API helper (POST) ===== */
+    async function apiPost(path, data) {
+      try {
+        const res = await fetch(API_BASE + path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const body = await res.json().catch(() => null);
+        return { ok: res.ok, status: res.status, body };
+      } catch (err) {
+        console.error('Network error', err);
+        return { ok: false, error: err, body: null };
+      }
+    }
+
+    /* ===== Form switching ===== */
+    const forms = {
+      login: document.getElementById('form-login'),
+      register: document.getElementById('form-register'),
+      forgot: document.getElementById('form-forgot'),
+      reset: document.getElementById('form-reset')
+    };
+    const infoTitle = document.getElementById('info-title');
+    const infoDesc = document.getElementById('info-desc');
+
+    // Enhanced form switching with animations
+    function showForm(name) {
+      Object.values(forms).forEach(f => f.classList.remove('active'));
+
+      if (forms[name]) {
+        setTimeout(() => {
+          forms[name].classList.add('active');
+        }, 100);
+      }
+
+      // Update info panel with smooth transition
+      const infoContent = document.querySelector('.info-content');
+      infoContent.style.opacity = '0';
+
+      setTimeout(() => {
+        if (name === 'login') {
+          infoTitle.textContent = 'Welcome back';
+          infoDesc.textContent = 'Sign in to continue to your learning journey.';
+        } else if (name === 'register') {
+          infoTitle.textContent = 'Join Skillify';
+          infoDesc.textContent = 'Create your account and start learning today.';
+        } else if (name === 'forgot') {
+          infoTitle.textContent = 'Reset Password';
+          infoDesc.textContent = 'We\'ll send you a secure code to reset your password.';
+        } else if (name === 'reset') {
+          infoTitle.textContent = 'New Password';
+          infoDesc.textContent = 'Choose a strong password for your account.';
+        }
+
+        infoContent.style.opacity = '1';
+      }, 200);
+    }
+    document.querySelectorAll('[data-show]').forEach(a => {
+      a.addEventListener('click', (e) => { e.preventDefault(); showForm(a.getAttribute('data-show')); });
+    });
+
+    /* Typed effect */
+    (function typedWelcome() {
+      const el = document.getElementById('typedSpan');
+      const text = 'Welcome TO Skillify';
+      let i = 0;
+      function step() {
+        if (i <= text.length) { el.textContent = text.slice(0, i); i++; setTimeout(step, 90); }
+      }
+      step();
+    })();
+
+    /* EDITION 2: Strength Meter Logic */
+    const strengthBar = document.getElementById('strength-bar');
+    const strengthText = document.getElementById('strength-text');
+    document.getElementById('regPassword').addEventListener('input', function (e) {
+      const val = e.target.value;
+      let strength = 0;
+      if (val.length > 5) strength++;
+      if (val.length > 8) strength++;
+      if (/[A-Z]/.test(val)) strength++;
+      if (/[0-9]/.test(val)) strength++;
+      if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+      const width = Math.min(100, (strength / 5) * 100);
+      strengthBar.style.width = width + '%';
+
+      if (strength < 2) {
+        strengthBar.style.background = 'var(--danger)'; strengthText.textContent = 'Weak';
+      } else if (strength < 4) {
+        strengthBar.style.background = 'var(--warning)'; strengthText.textContent = 'Medium';
+      } else {
+        strengthBar.style.background = 'var(--success)'; strengthText.textContent = 'Strong';
+      }
+    });
+
+    /* ===== Form Handling ===== */
+    const regForm = document.getElementById('form-register');
+    const regUsername = document.getElementById('regUsername');
+    const regEmail = document.getElementById('regEmail');
+    const regPassword = document.getElementById('regPassword');
+    const btnSendOtpInline = document.getElementById('btnSendOtpInline');
+    const btnSendOtpLabel = document.getElementById('btnSendOtpLabel');
+    const otpField = document.getElementById('otpField');
+    const regOtp = document.getElementById('regOtp');
+    const otpInfo = document.getElementById('otpInfo');
+    const otpTimer = document.getElementById('otpTimer');
+    const otpStateIcon = document.getElementById('otpStateIcon');
+    const sendCooldownNote = document.getElementById('sendCooldownNote');
+    const emailVerifMsg = document.getElementById('email-verif-msg');
+    const btnRegister = document.getElementById('btnRegister');
+
+    let clientState = { sendAttempts: 0, sendLockedUntil: 0, sendCooldown: 0, sendTimer: null, otpExpiresAt: 0, otpVerified: false, verifyFailures: 0, verifyLockedUntil: 0, otpExpiryInterval: null };
+
+    function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+
+    function showOtpField(show) { otpField.style.display = show ? 'block' : 'none'; }
+    function showOtpInfo(show) { otpInfo.style.display = show ? 'block' : 'none'; }
+    function setOtpStateIcon(state) {
+      if (state === null) { otpStateIcon.style.display = 'none'; otpStateIcon.className = 'bx'; return; }
+      otpStateIcon.style.display = 'inline-block';
+      if (state === true) { otpStateIcon.className = 'bx bx-check-circle'; otpStateIcon.style.color = 'var(--success)'; }
+      else { otpStateIcon.className = 'bx bx-x-circle'; otpStateIcon.style.color = 'var(--danger)'; }
+    }
+
+    /* Send OTP (Register) */
+    function startSendCooldown(seconds = 60) {
+      clearInterval(clientState.sendTimer);
+      clientState.sendCooldown = seconds;
+      btnSendOtpInline.disabled = true;
+      updateSendCooldownNote();
+      clientState.sendTimer = setInterval(() => {
+        clientState.sendCooldown--;
+        updateSendCooldownNote();
+        if (clientState.sendCooldown <= 0) {
+          clearInterval(clientState.sendTimer);
+          btnSendOtpInline.disabled = false;
+          btnSendOtpLabel.textContent = 'Resend Code';
+          sendCooldownNote.textContent = '';
+        }
+      }, 1000);
+    }
+    function updateSendCooldownNote() {
+      sendCooldownNote.textContent = clientState.sendCooldown > 0 ? `You can resend in ${clientState.sendCooldown}s` : '';
+    }
+
+    btnSendOtpInline.addEventListener('click', async () => {
+      const email = regEmail.value.trim();
+      if (!isValidEmail(email)) {
+        showToast('error', 'Please enter a valid email address');
+        shakeInput(regEmail); // Edition 5
+        regEmail.focus();
+        return;
+      }
+      const now = Date.now();
+      if (clientState.sendLockedUntil && now < clientState.sendLockedUntil) {
+        showToast('error', 'Too many sends. Please wait.');
+        return;
+      }
+
+      clientState.sendAttempts++;
+      if (clientState.sendAttempts >= 3) {
+        clientState.sendLockedUntil = Date.now() + 60_000;
+        clientState.sendAttempts = 0;
+        showToast('error', 'Too many sends — disabled for 1 minute.');
+        btnSendOtpInline.disabled = true;
+        startSendCooldown(60);
+        return;
+      }
+
+      setButtonLoading(btnSendOtpInline, true, 'Sending');
+      const res = await apiPost('/auth/send-otp', { email });
+      setButtonLoading(btnSendOtpInline, false);
+
+      if (res.ok) {
+        const expiresIn = res.body?.expiresInSec || 120;
+        clientState.otpVerified = false;
+        setOtpStateIcon(null);
+        showOtpField(true);
+        showOtpInfo(true);
+        clientState.otpExpiresAt = Date.now() + (expiresIn * 1000);
+        updateOtpTimerImmediate();
+        if (clientState.otpExpiryInterval) clearInterval(clientState.otpExpiryInterval);
+        clientState.otpExpiryInterval = setInterval(updateOtpTimerImmediate, 1000);
+        showToast('success', res.body?.message || `OTP sent to ${email}`);
+        emailVerifMsg.style.display = 'block';
+        emailVerifMsg.textContent = `A verification code was sent to ${email}.`;
+        startSendCooldown(60);
+      } else {
+        showToast('error', res.body?.message || 'Error sending OTP');
+      }
+    });
+
+    function updateOtpTimerImmediate() {
+      if (!clientState.otpExpiresAt) { showOtpInfo(false); return; }
+      const remaining = Math.max(0, Math.floor((clientState.otpExpiresAt - Date.now()) / 1000));
+      const mm = String(Math.floor(remaining / 60)).padStart(2, '0');
+      const ss = String(remaining % 60).padStart(2, '0');
+      otpTimer.textContent = `${mm}:${ss}`;
+      showOtpInfo(true);
+      if (remaining <= 0) {
+        clearInterval(clientState.otpExpiryInterval);
+        clientState.otpExpiresAt = 0;
+        showToast('error', 'OTP expired.');
+        showOtpInfo(false);
+      }
+    }
+
+    /* Auto Verify OTP */
+    let otpVerifyDebounce = null;
+    regOtp.addEventListener('input', () => {
+      setOtpStateIcon(null);
+      clientState.otpVerified = false;
+      if (otpVerifyDebounce) clearTimeout(otpVerifyDebounce);
+      if (regOtp.value.trim().length >= 4) {
+        otpVerifyDebounce = setTimeout(() => attemptVerifyOtp(), 700);
+      }
+    });
+
+    let verifying = false;
+    async function attemptVerifyOtp() {
+      if (verifying) return;
+      const email = regEmail.value.trim();
+      const code = regOtp.value.trim();
+      if (!isValidEmail(email)) { showToast('error', 'Enter valid email'); shakeInput(regEmail); return; }
+
+      verifying = true;
+      const res = await apiPost('/auth/verify-otp', { email, otp: code });
+      verifying = false;
+
+      if (res.ok) {
+        if (res.body?.verified === true || res.body?.success === true) {
+          clientState.otpVerified = true;
+          setOtpStateIcon(true);
+          showToast('success', 'OTP verified!');
+          playSuccessSound(); // Edition 7
+          if (clientState.otpExpiryInterval) clearInterval(clientState.otpExpiryInterval);
+        } else {
+          setOtpStateIcon(false);
+          showToast('error', 'Incorrect OTP');
+          shakeInput(regOtp); // Edition 5
+        }
+      } else {
+        showToast('error', res.body?.message || 'Error verifying');
+      }
+    }
+
+    /* Register Submit */
+    regForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = regUsername.value.trim();
+      const email = regEmail.value.trim();
+      const password = regPassword.value.trim();
+
+      if (!username || !email || !password) { showToast('error', 'Please fill all fields'); return; }
+      if (!clientState.otpVerified) {
+        showToast('error', 'Please verify OTP first');
+        shakeInput(regOtp);
+        return;
+      }
+
+      setButtonLoading(btnRegister, true, 'Creating');
+      const res = await apiPost('/auth/register', { username, email, password });
+      setButtonLoading(btnRegister, false);
+
+      if (res.ok) {
+        triggerConfetti(); // Edition 3
+        playSuccessSound(); // Edition 7
+        showToast('success', 'Account created successfully! Redirecting to login...');
+        emailVerifMsg.textContent = `Account created for ${email}. You can now login.`;
+        regForm.reset();
+        clientState.otpVerified = false;
+        setOtpStateIcon(null);
+        showOtpField(false);
+        btnSendOtpLabel.textContent = 'Send Code';
+        setTimeout(() => {
+          showForm('login');
+          // Pre-fill login username if available
+          if (username) {
+            document.getElementById('loginUsername').value = username;
+            document.getElementById('loginUsername').focus();
+          }
+        }, 1500);
+      } else {
+        showToast('error', res.body?.message || 'Error creating account');
+      }
+    });
+
+    /* LOGIN */
+    document.getElementById('form-login').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnLogin');
+
+      // Rate limiting check
+      if (!checkLoginRateLimit()) {
+        setButtonLoading(btn, false);
+        return;
+      }
+
+      setButtonLoading(btn, true, 'Signing in');
+
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      const remember = document.getElementById('rememberChk').checked;
+
+      if (!username || !password) {
+        showToast('error', 'Please fill all fields');
+        setButtonLoading(btn, false);
+        recordLoginAttempt(false);
+        return;
+      }
+
+      const res = await apiPost('/auth/login', { username, password });
+      if (res.ok) {
+        const body = res.body || {};
+        if (body.verified === false) {
+          showToast('error', 'Account not verified.');
+          setButtonLoading(btn, false);
+          recordLoginAttempt(false);
+          return;
+        }
+        LOGIN_STATE.loggedIn = true;
+        localStorage.setItem('username', body.username);
+        if (remember) localStorage.setItem('rememberedUsername', username);
+        triggerConfetti(); // Edition 3
+        playSuccessSound(); // Edition 7
+        showToast('success', body.message || 'Logged in!');
+        recordLoginAttempt(true);
+        setTimeout(() => window.location.href = 'dashboard.html', 1200);
+      } else {
+        showToast('error', res.body?.message || 'Login failed');
+        shakeInput(document.getElementById('loginUsername'));
+        shakeInput(document.getElementById('loginPassword'));
+        recordLoginAttempt(false);
+      }
+      setButtonLoading(btn, false);
+    });
+
+    /* Forgot Password Logic */
+    const forgotEmail = document.getElementById('forgotEmail');
+    const btnSendForgot = document.getElementById('btnForgot');
+    const forgotStepOtp = document.getElementById('forgot-step-otp');
+    const forgotStepNewpass = document.getElementById('forgot-step-newpass');
+    const forgotOtp = document.getElementById('forgotOtp');
+    const forgotNewPassword = document.getElementById('forgotNewPassword');
+
+    btnSendForgot.addEventListener('click', async () => {
+      // If verifying OTP or resetting:
+      if (forgotStepNewpass.style.display === 'block') {
+        // Reset Logic
+        const email = forgotEmail.value;
+        const otp = forgotOtp.value;
+        const newPass = forgotNewPassword.value;
+        const res = await apiPost('/reset', { email, otp, newPassword: newPass });
+        if (res.ok) {
+          triggerConfetti();
+          showToast('success', 'Password reset! Redirecting to login...');
+          // Clear forgot form
+          forgotEmail.value = '';
+          forgotOtp.value = '';
+          forgotNewPassword.value = '';
+          forgotStepOtp.style.display = 'none';
+          forgotStepNewpass.style.display = 'none';
+          document.getElementById('btnSendForgotLabel').textContent = 'Send reset OTP';
+          setTimeout(() => showForm('login'), 1500);
+        } else { showToast('error', res.body?.message); }
+        return;
+      }
+
+      // Initial Send Logic
+      const email = forgotEmail.value.trim();
+      if (!isValidEmail(email)) { showToast('error', 'Invalid email'); shakeInput(forgotEmail); return; }
+
+      setButtonLoading(btnSendForgot, true, 'Sending');
+      const res = await apiPost('/forgot', { email });
+      setButtonLoading(btnSendForgot, false);
+
+      if (res.ok) {
+        showToast('success', 'OTP sent to your email');
+        forgotStepOtp.style.display = 'block';
+        // Auto-verify listener
+        forgotOtp.addEventListener('input', async () => {
+          if (forgotOtp.value.length >= 4) {
+            const vRes = await apiPost('/verify-otp', { email, otp: forgotOtp.value });
+            if (vRes.ok && vRes.body?.verified) {
+              forgotStepNewpass.style.display = 'block';
+              document.getElementById('btnSendForgotLabel').textContent = 'Reset Password';
+              playSuccessSound();
+              showToast('success', 'OTP verified! Set your new password.');
+            }
+          }
+        });
+      } else { showToast('error', 'Error sending OTP'); }
+    });
+
+    /* Toggles & Misc */
+    document.querySelectorAll('.icon[id^="toggle"]').forEach(icon => {
+      icon.addEventListener('click', function () {
+        const input = this.previousElementSibling;
+        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+        input.setAttribute('type', type);
+        this.classList.toggle('bx-hide');
+        this.classList.toggle('bx-show');
+      });
+    });
+
+    document.getElementById('toggleDark').addEventListener('click', () => {
+      const root = document.documentElement;
+      const cur = getComputedStyle(root).getPropertyValue('--bg').trim();
+      if (cur === '#0b0b0c') {
+        root.style.setProperty('--bg', '#f6f7fb'); root.style.setProperty('--card', '#ffffff');
+        root.style.setProperty('--muted', '#333'); document.body.style.color = '#111';
+      } else {
+        root.style.setProperty('--bg', '#0b0b0c'); root.style.setProperty('--card', '#0f1113');
+        root.style.setProperty('--muted', '#bfc3c8'); document.body.style.color = '#fff';
+      }
+    });
+    document.getElementById('btnRegisterGuest').addEventListener('click', () => {
+      document.getElementById('regUsername').value = 'demouser';
+      document.getElementById('regEmail').value = 'demo@example.com';
+      document.getElementById('regPassword').value = 'DemoPass123!';
+    });
+    console.log('Frontend loaded with editions.');
+  </script>
+</body>
+
+</html>
+
+
+
+<!-- 
+powershell
+node create_admin.js USERNAME
+مثال: لو اسم المستخدم yousef، تكتب:
+
+powershell
+node create_admin.js yousef
+للتحقق من قائمة الأدمنز الموجودين حالياً:
+
+powershell
+node list_admins.js -->

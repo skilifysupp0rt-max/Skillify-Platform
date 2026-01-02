@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanium Design | Ultimate Studio</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* ================= 1. SYSTEM VARIABLES ================= */
+        /* ================= 1. SYSTEM VARIABLES ================= */
+        :root {
+            --bg-body: #050507;
+            --bg-panel: #0b0b0e;
+            --bg-surface: #151519;
+            --border-dim: rgba(255, 255, 255, 0.06);
+            --border-light: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+
+            /* DESIGN PALETTE */
+            --pink: #ec4899;
+            --pink-g: rgba(236, 72, 153, 0.25);
+            --purple: #a855f7;
+            --purple-g: rgba(168, 85, 247, 0.25);
+            --orange: #f97316;
+            --orange-g: rgba(249, 115, 22, 0.25);
+            --cyan: #06b6d4;
+            --cyan-g: rgba(6, 182, 212, 0.25);
+            --yellow: #eab308;
+            --yellow-g: rgba(234, 179, 8, 0.25);
+
+            /* ACTIVE THEME */
+            --theme: var(--pink);
+            --glow: var(--pink-g);
+
+            --nav-w: 280px;
+            --font-ui: 'Plus Jakarta Sans', sans-serif;
+            --font-head: 'Outfit', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            outline: none;
+            text-decoration: none;
+            user-select: none;
+        }
+
+        body {
+            background: var(--bg-body);
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--theme);
+        }
+
+        /* ================= 2. SIDEBAR ================= */
+        .sidebar {
+            width: var(--nav-w);
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border-dim);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .brand {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            gap: 12px;
+            font-family: var(--font-head);
+            font-size: 20px;
+            font-weight: 800;
+            border-bottom: 1px solid var(--border-dim);
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--theme), #222);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .nav-scroller {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 16px;
+        }
+
+        .studio-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, #ec4899, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(236, 72, 153, 0.3);
+            margin-bottom: 30px;
+            transition: 0.3s;
+        }
+
+        .studio-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(236, 72, 153, 0.5);
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin: 20px 0 10px 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border-color: var(--border-dim);
+        }
+
+        .nav-item.active i {
+            color: var(--theme);
+        }
+
+        .user-mini {
+            padding: 20px;
+            border-top: 1px solid var(--border-dim);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            background: #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+            border: 1px solid var(--border-dim);
+        }
+
+        /* ================= 3. MAIN CONTENT ================= */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .top-header {
+            height: 70px;
+            border-bottom: 1px solid var(--border-dim);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            background: var(--bg-body);
+        }
+
+        .breadcrumbs {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: var(--font-code);
+        }
+
+        .breadcrumbs span {
+            color: var(--theme);
+            margin-left: 8px;
+            font-weight: 700;
+        }
+
+        .xp-pill {
+            background: var(--glow);
+            border: 1px solid var(--theme);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--theme);
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .viewport {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .track-hero {
+            padding: 50px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-dim);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .track-hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40%;
+            height: 100%;
+            background: radial-gradient(circle at center, var(--glow), transparent 70%);
+            opacity: 0.4;
+        }
+
+        .hero-title {
+            font-family: var(--font-head);
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .hero-desc {
+            color: var(--text-muted);
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        /* LEVELS */
+        .level-block {
+            margin-bottom: 60px;
+            position: relative;
+            padding-left: 40px;
+            border-left: 2px solid var(--border-dim);
+        }
+
+        .level-block::before {
+            content: attr(data-level);
+            position: absolute;
+            left: -16px;
+            top: 0;
+            width: 32px;
+            height: 32px;
+            background: var(--bg-body);
+            border: 2px solid var(--theme);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+            color: white;
+        }
+
+        .level-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-dim);
+        }
+
+        .lh-title {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .lh-badge {
+            background: #222;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: var(--font-code);
+            color: var(--theme);
+            border: 1px solid var(--border-dim);
+        }
+
+        .locked-zone {
+            opacity: 0.5;
+            filter: grayscale(1);
+            pointer-events: none;
+        }
+
+        .locked-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #000;
+            padding: 12px 24px;
+            border-radius: 50px;
+            border: 1px solid var(--border-light);
+        }
+
+        /* CARDS */
+        .grid-courses {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-dim);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--theme);
+        }
+
+        .card-thumb {
+            height: 160px;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .card-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+            transition: 0.5s;
+        }
+
+        .card:hover img {
+            transform: scale(1.05);
+            opacity: 1;
+        }
+
+        .play-btn {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .card:hover .play-btn {
+            opacity: 1;
+        }
+
+        .card-body {
+            padding: 20px;
+            flex: 1;
+        }
+
+        .c-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .c-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid var(--border-dim);
+            background: transparent;
+            color: var(--text-muted);
+            width: 100%;
+        }
+
+        .btn:hover {
+            border-color: white;
+            color: white;
+        }
+
+        .btn.primary {
+            background: var(--glow);
+            border-color: var(--theme);
+            color: var(--theme);
+        }
+
+        .btn.primary:hover {
+            background: var(--theme);
+            color: #000;
+        }
+
+        /* ================= 4. TITANIUM STUDIO (TOOL) ================= */
+        .studio-wrap {
+            position: absolute;
+            inset: 0;
+            background: #1a1a1d;
+            z-index: 50;
+            display: none;
+            flex-direction: column;
+        }
+
+        .studio-top {
+            height: 50px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-dim);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+
+        .studio-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .tools-rail {
+            width: 50px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border-dim);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 10px;
+            gap: 10px;
+        }
+
+        .tool-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .tool-icon:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .tool-icon.active {
+            background: var(--glow);
+            color: var(--theme);
+            border: 1px solid var(--theme);
+        }
+
+        .canvas-area {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background-image: radial-gradient(#333 1px, transparent 1px);
+            background-size: 20px 20px;
+            cursor: crosshair;
+        }
+
+        .props-panel {
+            width: 260px;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border-dim);
+            padding: 20px;
+        }
+
+        .prop-row {
+            margin-bottom: 15px;
+        }
+
+        .prop-ttl {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .prop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .p-input {
+            width: 100%;
+            background: #000;
+            border: 1px solid var(--border-dim);
+            color: white;
+            padding: 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-family: var(--font-code);
+        }
+
+        .canvas-el {
+            position: absolute;
+            cursor: move;
+            border: 1px solid transparent;
+        }
+
+        .canvas-el:hover {
+            border: 1px solid var(--theme);
+        }
+
+        .canvas-el.selected {
+            border: 2px solid var(--theme);
+            box-shadow: 0 0 0 4px var(--glow);
+            z-index: 100;
+        }
+
+        /* ================= 5. MODALS & TOAST ================= */
+        .modal-wrap {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-wrap.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            width: 800px;
+            border-radius: 16px;
+            overflow: hidden;
+            max-width: 90%;
+        }
+
+        .modal-head {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--bg-surface);
+            border: 1px solid var(--theme);
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 3000;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    <!-- Video Learning System -->
+    <script src="/js/courseData.js"></script>
+    <script src="/js/videoSystem.js"></script>
+</head>
+
+<body>
+
+    <div id="videoModal" class="modal-wrap">
+        <div class="modal-box">
+            <div class="modal-head"><span>Module Playback</span><i class="ph ph-x" style="cursor:pointer"
+                    onclick="app.closeModals()"></i></div>
+            <div style="aspect-ratio: 16/9; background: #000;"><iframe id="vidFrame" width="100%" height="100%" src=""
+                    frameborder="0" allowfullscreen></iframe></div>
+        </div>
+    </div>
+
+    <div id="quizModal" class="modal-wrap">
+        <div class="modal-box" style="width: 500px; padding:30px;">
+            <div style="font-size:18px; font-weight:700; margin-bottom:20px;">Design Check</div>
+            <p id="qText" style="margin-bottom:20px; color:#ccc;">Question...</p>
+            <div id="qOpts" style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;"></div>
+            <button class="btn primary" onclick="app.submitQuiz()">Submit</button>
+        </div>
+    </div>
+
+    <div id="toastZone"></div>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon"><i class="ph ph-bezier-curve"></i></div> TITANIUM
+        </div>
+        <div class="nav-scroller">
+            <button class="studio-btn" onclick="studio.open()"><i class="ph ph-paint-brush-broad"></i> Open
+                Studio</button>
+
+            <div class="nav-label">Design Disciplines</div>
+            <div class="nav-item active" onclick="app.load('ui', this)"><i class="ph ph-layout"></i> UI Design</div>
+            <div class="nav-item" onclick="app.load('ux', this)"><i class="ph ph-users-three"></i> User Research</div>
+            <div class="nav-item" onclick="app.load('motion', this)"><i class="ph ph-film-strip"></i> Motion &
+                Interaction</div>
+            <div class="nav-item" onclick="app.load('3d', this)"><i class="ph ph-cube"></i> 3D & Blender</div>
+            <div class="nav-item" onclick="app.load('brand', this)"><i class="ph ph-paint-bucket"></i> Branding</div>
+
+            <div class="nav-label">System</div>
+            <div class="nav-item" onclick="location.href='../dashboard.html'"><i class="ph ph-house"></i> Dashboard
+            </div>
+            <div class="nav-item" onclick="user.reset()"><i class="ph ph-trash"></i> Reset Data</div>
+        </div>
+        <div class="user-mini">
+            <div class="avatar">AD</div>
+            <div style="margin-left:10px; font-size:13px; font-weight:600;">Alex Designer</div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div class="breadcrumbs">TITANIUM // <span id="breadVal">UI DESIGN</span></div>
+            <div class="xp-pill"><i class="ph ph-star-four"></i> <span id="xpDisplay">0 XP</span></div>
+        </header>
+
+        <div class="viewport" id="viewport"></div>
+
+        <div class="studio-wrap" id="studioView">
+            <div class="studio-top">
+                <div style="display:flex; align-items:center; gap:10px;"><i class="ph ph-paint-brush-broad"
+                        style="color:#ec4899"></i> <strong>Titanium Studio</strong></div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn" onclick="studio.close()">Exit to Hub</button>
+                    <button class="btn primary"
+                        style="border-color:#ec4899; color:#ec4899; background:rgba(236,72,153,0.1)"
+                        onclick="studio.submit()">Submit Design (+100 XP)</button>
+                </div>
+            </div>
+            <div class="studio-body">
+                <div class="tools-rail">
+                    <div class="tool-icon active" id="t-select" onclick="studio.setTool('select')"><i
+                            class="ph ph-cursor"></i></div>
+                    <div class="tool-icon" id="t-rect" onclick="studio.addRect()"><i class="ph ph-square"></i></div>
+                    <div class="tool-icon" id="t-circle" onclick="studio.addCircle()"><i class="ph ph-circle"></i></div>
+                    <div class="tool-icon" id="t-text" onclick="studio.addText()"><i class="ph ph-text-t"></i></div>
+                    <div style="height:1px; width:20px; background:var(--border-dim);"></div>
+                    <div class="tool-icon" onclick="studio.clear()"><i class="ph ph-trash"></i></div>
+                </div>
+                <div class="canvas-area" id="canvasContainer" tabindex="0" onkeydown="studio.handleKey(event)">
+                    <div id="artboard" style="width:100%; height:100%; position:relative;"
+                        onmousedown="studio.deselectAll(event)"></div>
+                </div>
+                <div class="props-panel">
+                    <div class="prop-row">
+                        <div class="prop-ttl">Transform</div>
+                        <div class="prop-grid">
+                            <input type="number" id="inp-x" class="p-input" placeholder="X"
+                                onchange="studio.update('x', this.value)">
+                            <input type="number" id="inp-y" class="p-input" placeholder="Y"
+                                onchange="studio.update('y', this.value)">
+                        </div>
+                    </div>
+                    <div class="prop-row">
+                        <div class="prop-ttl">Size</div>
+                        <div class="prop-grid">
+                            <input type="number" id="inp-w" class="p-input" placeholder="W"
+                                onchange="studio.update('w', this.value)">
+                            <input type="number" id="inp-h" class="p-input" placeholder="H"
+                                onchange="studio.update('h', this.value)">
+                        </div>
+                    </div>
+                    <div class="prop-row">
+                        <div class="prop-ttl">Appearance</div>
+                        <input type="color" id="inp-color" class="p-input" style="height:30px; cursor:pointer;"
+                            onchange="studio.update('color', this.value)">
+                        <div class="prop-grid" style="margin-top:8px;">
+                            <input type="number" id="inp-r" class="p-input" placeholder="Radius"
+                                onchange="studio.update('r', this.value)">
+                            <input type="number" id="inp-o" class="p-input" placeholder="Opacity %" value="100"
+                                onchange="studio.update('o', this.value)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const DB = {
+            ui: {
+                theme: '--pink', title: 'User Interface Design', desc: 'Master Figma, Auto Layout, and Design Systems.',
+                levels: [
+                    {
+                        id: 1, title: 'Foundations', status: 'active', courses: [
+                            { t: 'Figma Mastery', d: 'Variables & Modes', img: 'https://placehold.co/600x400/ec4899/ffffff?text=Figma', v: 'YiL2eH5I2kQ' },
+                            { t: 'Design Systems', d: 'Tokens & Components', img: 'https://placehold.co/600x400/ec4899/ffffff?text=Design+Systems', v: 'X1ulCwyhCVM' },
+                            { t: 'Landing Pages', d: 'Conversion Design', img: 'https://placehold.co/600x400/ec4899/ffffff?text=Landing+Page', v: 'qyVkLebgfzY' }
+                        ]
+                    },
+                    { id: 2, title: 'Prototyping', status: 'locked', courses: [{ t: 'Smart Animate', d: 'Interactions', img: 'https://placehold.co/600x400/ec4899/ffffff?text=Smart+Animate', v: 'G3e-cpL7ofc' }, { t: 'Micro-Interactions', d: 'Components', img: 'https://placehold.co/600x400/ec4899/ffffff?text=Micro+Interactions', v: 'u0SbQ1z0eTo' }, { t: 'Mobile Patterns', d: 'Gestures', img: 'https://placehold.co/600x400/ec4899/ffffff?text=Mobile', v: 'BI3W-kgM3lY' }] },
+                    { id: 3, title: 'Systems', status: 'locked', courses: [{ t: 'Design Ops', d: 'Governance', img: 'https://placehold.co/600x400/ec4899/ffffff?text=Design+Ops', v: 'OxC_9h7AWEQ' }, { t: 'Documenation', d: 'Handoff', img: 'https://placehold.co/600x400/ec4899/ffffff?text=Docs', v: 'X1ulCwyhCVM' }, { t: 'Tokens', d: 'JSON', img: 'https://placehold.co/600x400/ec4899/ffffff?text=Tokens', v: 'qyVkLebgfzY' }] }
+                ],
+                quiz: { q: 'Shortcut for Auto Layout?', o: ['Shift + A', 'Ctrl + G', 'Alt + L', 'Cmd + D'] }
+            },
+            ux: {
+                theme: '--purple', title: 'User Experience', desc: 'Research, Wireframing, and Usability Testing.',
+                levels: [
+                    {
+                        id: 1, title: 'Discovery', status: 'active', courses: [
+                            { t: 'User Research', d: 'Interviews & Personas', img: 'https://placehold.co/600x400/a855f7/ffffff?text=Research', v: 'G3e-cpL7ofc' },
+                            { t: 'Wireframing', d: 'Low-fi to Hi-fi', img: 'https://placehold.co/600x400/a855f7/ffffff?text=Wireframing', v: 'u0SbQ1z0eTo' },
+                            { t: 'Usability Testing', d: 'Maze & Hotjar', img: 'https://placehold.co/600x400/a855f7/ffffff?text=Usability', v: 'BI3W-kgM3lY' }
+                        ]
+                    },
+                    { id: 2, title: 'Validation', status: 'locked', courses: [{ t: 'A/B Testing', d: 'Data', img: 'https://placehold.co/600x400/a855f7/ffffff?text=AB+Test', v: 'OxC_9h7AWEQ' }, { t: 'Heatmaps', d: 'Analysis', img: 'https://placehold.co/600x400/a855f7/ffffff?text=Heatmaps', v: 'X1ulCwyhCVM' }, { t: 'Accessibility', d: 'WCAG', img: 'https://placehold.co/600x400/a855f7/ffffff?text=A11y', v: 'qyVkLebgfzY' }] },
+                    { id: 3, title: 'Strategy', status: 'locked', courses: [{ t: 'Product Vision', d: 'Roadmap', img: 'https://placehold.co/600x400/a855f7/ffffff?text=Vision', v: 'G3e-cpL7ofc' }, { t: 'Workshops', d: 'Facilitation', img: 'https://placehold.co/600x400/a855f7/ffffff?text=Workshops', v: 'u0SbQ1z0eTo' }, { t: 'Metrics', d: 'KPIs', img: 'https://placehold.co/600x400/a855f7/ffffff?text=KPIs', v: 'BI3W-kgM3lY' }] }
+                ],
+                quiz: { q: 'Which is qualitative?', o: ['User Interview', 'A/B Test', 'Analytics', 'Heatmap'] }
+            },
+            motion: { theme: '--orange', title: 'Motion & Interaction', desc: 'Bring designs to life with Rive and After Effects.', levels: [{ id: 1, title: 'Basics', status: 'active', courses: [{ t: 'Rive Basics', d: 'State Machines', img: 'https://placehold.co/600x400/f97316/ffffff?text=Rive', v: 'OxC_9h7AWEQ' }, { t: 'Micro-Interactions', d: 'Feedback', img: 'https://placehold.co/600x400/f97316/ffffff?text=Micro', v: 'X1ulCwyhCVM' }] }], quiz: { q: 'Rive uses?', o: ['Vectors', 'Pixels', 'Video', 'GIFs'] } },
+            '3d': { theme: '--cyan', title: '3D Design', desc: 'Blender, Spline, and WebGL.', levels: [{ id: 1, title: 'Modeling', status: 'active', courses: [{ t: 'Blender Donuts', d: 'Basics', img: 'https://placehold.co/600x400/06b6d4/ffffff?text=Blender', v: 'qyVkLebgfzY' }, { t: 'Spline', d: 'Web 3D', img: 'https://placehold.co/600x400/06b6d4/ffffff?text=Spline', v: 'G3e-cpL7ofc' }] }], quiz: { q: 'Default cube key?', o: ['X', 'Del', 'S', 'G'] } },
+            brand: { theme: '--yellow', title: 'Brand Identity', desc: 'Logo design, Typography, and Visual Language.', levels: [{ id: 1, title: 'Identity', status: 'active', courses: [{ t: 'Logo Grid', d: 'Construction', img: 'https://placehold.co/600x400/eab308/ffffff?text=Logo', v: 'u0SbQ1z0eTo' }, { t: 'Type', d: 'Kerning', img: 'https://placehold.co/600x400/eab308/ffffff?text=Type', v: 'BI3W-kgM3lY' }] }], quiz: { q: 'RGB is for?', o: ['Screens', 'Print', 'Paper', 'Billboards'] } }
+        };
+
+        const user = {
+            xp: 0,
+            init: () => { const s = localStorage.getItem('titanium_user'); if (s) user.xp = JSON.parse(s).xp; user.updateUI(); },
+            addXP: (n) => { user.xp += n; user.save(); user.updateUI(); },
+            save: () => localStorage.setItem('titanium_user', JSON.stringify({ xp: user.xp })),
+            updateUI: () => document.getElementById('xpDisplay').innerText = user.xp + ' XP',
+            reset: () => { localStorage.removeItem('titanium_user'); location.reload(); }
+        };
+
+        const app = {
+            init: () => { user.init(); app.load('ui'); },
+            load: (key, btn) => {
+                document.getElementById('viewport').style.display = 'block';
+                document.getElementById('studioView').style.display = 'none';
+
+                const data = DB[key];
+                document.documentElement.style.setProperty('--theme', `var(${data.theme})`);
+                document.documentElement.style.setProperty('--glow', `var(${data.theme}-g)`);
+                document.getElementById('breadVal').innerText = key.toUpperCase();
+
+                if (btn) { document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active')); btn.classList.add('active'); }
+
+                const view = document.getElementById('viewport');
+                let html = `
+                    <div class="track-hero">
+                        <div class="hero-badge">Specialized Track</div>
+                        <h1 class="hero-title">${data.title}</h1>
+                        <p class="hero-desc">${data.desc}</p>
+                    </div>
+                `;
+
+                data.levels.forEach(lvl => {
+                    const isLocked = lvl.status === 'locked';
+                    const lockedClass = isLocked ? 'locked-zone' : '';
+                    const overlay = isLocked ? `<div class="locked-overlay"><div class="locked-msg"><i class="ph ph-lock-key"></i> LOCKED: COMPLETE PREVIOUS</div></div>` : '';
+
+                    html += `
+                        <div class="level-block ${lockedClass}" data-level="${lvl.id}">
+                            ${overlay}
+                            <div class="level-head">
+                                <div class="lh-title">${lvl.title} <span class="lh-badge">${lvl.status}</span></div>
+                            </div>
+                            <div class="grid-courses">
+                                ${lvl.courses.map((c, i) => `
+                                    <div class="card">
+                                        <div class="card-thumb" onclick="videoSystem.playVideo('${c.v}', '${c.t}', this.closest('.card'))" data-video-id="${c.v}">
+                                            <img src="${c.img || 'https://via.placeholder.com/600x400/111/333?text=Locked'}">
+                                            <div class="play-btn"><i class="ph ph-play-circle play-icon"></i></div>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="tags"><span class="tag h">${c.tag || 'Design'}</span><span class="tag">M${i + 1}</span></div>
+                                            <div class="c-title">${c.t}</div>
+                                            <div class="c-desc">${c.d}</div>
+                                            <div class="c-actions">
+                                                <button class="btn" onclick="app.toggleSyllabus(this)">Syllabus</button>
+                                                <button class="btn primary" onclick="videoSystem.openQuiz('${key}', this)">Quiz</button>
+                                            </div>
+                                        </div>
+                                        <div class="syllabus">
+                                            <div class="lesson">01. Setup & Tools</div>
+                                            <div class="lesson">02. Execution</div>
+                                            <div class="lesson">03. Review</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+                view.innerHTML = html;
+            },
+            playVideo: (v, t) => {
+                if (!v) return app.toast('Video coming soon');
+                document.getElementById('videoModal').classList.add('active');
+                document.getElementById('vidTitle').innerText = t;
+                document.getElementById('vidFrame').src = `https://www.youtube.com/embed/${v}?autoplay=1`;
+            },
+            openQuiz: (k) => {
+                const d = DB[k].quiz;
+                document.getElementById('quizModal').classList.add('active');
+                document.getElementById('qText').innerText = d.q;
+                document.getElementById('qOpts').innerHTML = d.o.map(x => `<button class="btn" style="text-align:left; justify-content:flex-start" onclick="this.style.borderColor='var(--theme)'">${x}</button>`).join('');
+            },
+            submitQuiz: () => { app.closeModals(); user.addXP(50); app.toast('Correct! +50 XP'); },
+            closeModals: () => { document.querySelectorAll('.modal-wrap').forEach(m => m.classList.remove('active')); document.getElementById('vidFrame').src = ''; },
+            toggleSyllabus: (b) => { const s = b.closest('.card-body').nextElementSibling; s.classList.toggle('open'); },
+            toast: (m) => { const e = document.createElement('div'); e.className = 'toast'; e.innerHTML = `<i class="ph ph-info"></i> ${m}`; document.getElementById('toastZone').appendChild(e); setTimeout(() => e.remove(), 3000); }
+        };
+
+        /* --- STUDIO ENGINE --- */
+        let sel = null; let isDragging = false; let dx, dy;
+        const studio = {
+            open: () => { document.getElementById('viewport').style.display = 'none'; document.getElementById('studioView').style.display = 'flex'; },
+            close: () => { document.getElementById('viewport').style.display = 'block'; document.getElementById('studioView').style.display = 'none'; },
+            submit: () => { if (document.getElementById('artboard').children.length > 0) { user.addXP(100); app.toast('Design Submitted! +100 XP'); studio.close(); } else app.toast('Canvas is empty'); },
+            clear: () => { document.getElementById('artboard').innerHTML = ''; sel = null; },
+
+            setTool: (t) => { document.querySelectorAll('.tool-icon').forEach(e => e.classList.remove('active')); document.getElementById('t-' + t).classList.add('active'); },
+            addRect: () => studio.spawn('100px', '100px', '#ec4899', '0px'),
+            addCircle: () => studio.spawn('100px', '100px', '#a855f7', '50%'),
+            addText: () => { const e = studio.spawn('auto', 'auto', 'transparent', '0px'); e.innerText = 'Type...'; e.contentEditable = true; e.style.fontSize = '24px'; },
+
+            spawn: (w, h, bg, r) => {
+                const el = document.createElement('div'); el.className = 'canvas-el';
+                Object.assign(el.style, { width: w, height: h, backgroundColor: bg, borderRadius: r, top: '100px', left: '100px', color: 'white', padding: '5px' });
+                el.onmousedown = (e) => { e.stopPropagation(); studio.select(el); studio.drag(e, el); };
+                document.getElementById('artboard').appendChild(el); studio.select(el); return el;
+            },
+            select: (el) => { document.querySelectorAll('.canvas-el').forEach(e => e.classList.remove('selected')); sel = el; el.classList.add('selected'); studio.syncProps(); },
+            deselectAll: (e) => { if (e.target.id === 'artboard') { sel = null; document.querySelectorAll('.canvas-el').forEach(e => e.classList.remove('selected')); } },
+            drag: (e, el) => { isDragging = true; dx = e.clientX - el.offsetLeft; dy = e.clientY - el.offsetTop; document.onmousemove = (m) => { if (!isDragging) return; el.style.left = (m.clientX - dx) + 'px'; el.style.top = (m.clientY - dy) + 'px'; studio.syncProps(); }; document.onmouseup = () => { isDragging = false; document.onmousemove = null; }; },
+
+            syncProps: () => { if (!sel) return; document.getElementById('inp-x').value = parseInt(sel.style.left); document.getElementById('inp-y').value = parseInt(sel.style.top); document.getElementById('inp-w').value = parseInt(sel.style.width) || sel.offsetWidth; document.getElementById('inp-h').value = parseInt(sel.style.height) || sel.offsetHeight; },
+            update: (p, v) => {
+                if (!sel) return;
+                if (p == 'x') sel.style.left = v + 'px'; if (p == 'y') sel.style.top = v + 'px';
+                if (p == 'w') sel.style.width = v + 'px'; if (p == 'h') sel.style.height = v + 'px';
+                if (p == 'r') sel.style.borderRadius = v + 'px'; if (p == 'color') { sel.style.backgroundColor = v; sel.style.color = v; }
+                if (p == 'o') sel.style.opacity = v / 100;
+            },
+            handleKey: (e) => { if (sel && (e.key === 'Delete' || e.key === 'Backspace')) { sel.remove(); sel = null; } }
+        };
+
+        app.init();
+    </script>
+</body>
+
+</html>

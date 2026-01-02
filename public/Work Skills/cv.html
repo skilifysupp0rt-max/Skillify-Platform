@@ -1,0 +1,1492 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Skillify CV Studio</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <style>
+    /* =========================================
+       SKILLIFY CV STUDIO
+       Theme: "Professional Glass"
+    ========================================= */
+    :root {
+      /* Main Dashboard Vars */
+      --bg: #050507;
+      --bg-grad: radial-gradient(circle at 15% 0%, rgba(99, 102, 241, 0.08), transparent 40%),
+        radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.05), transparent 40%);
+      --panel: rgba(18, 18, 22, 0.6);
+      --panel-solid: #121216;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #ffffff;
+      --text-muted: #9ca3af;
+      --primary: #6366f1;
+      --primary-glow: 0 0 20px rgba(99, 102, 241, 0.4);
+      --accent: #d4af37;
+      /* Gold retained for CV context */
+      --accent-glow: rgba(212, 175, 55, 0.3);
+      --success: #10b981;
+      --danger: #ef4444;
+      --glass: rgba(18, 18, 22, 0.75);
+      --glass-shine: rgba(255, 255, 255, 0.03);
+      --blur: blur(24px);
+
+      --font-ui: 'Plus Jakarta Sans', sans-serif;
+      --font-serif: 'Playfair Display', serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    /* SCROLLBARS */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-ui);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      background-image: var(--bg-grad);
+    }
+
+    /* --- LAYOUT FIX (Robust Grid) --- */
+    .apex-shell {
+      display: grid;
+      grid-template-columns: 80px 450px 1fr;
+      /* Nav | Editor | Preview */
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* 1. SIDEBAR NAV */
+    .nav-rail {
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      gap: 10px;
+      z-index: 10;
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--primary-glow);
+    }
+
+    .nav-item {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 20px;
+      border: 1px solid transparent;
+    }
+
+    .nav-item:hover {
+      color: var(--text);
+      background: var(--glass-shine);
+    }
+
+    .nav-item.active {
+      color: var(--primary);
+      background: rgba(99, 102, 241, 0.1);
+      border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    /* ANIMATIONS & ENHANCEMENTS */
+    @keyframes gridMove {
+      0% {
+        background-position: 0 0;
+      }
+
+      100% {
+        background-position: 50px 50px;
+      }
+    }
+
+    .pulse-btn {
+      animation: pulse 2s infinite;
+      color: var(--accent) !important;
+      text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .stage-panel.animated {
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: gridMove 20s linear infinite;
+    }
+
+    /* 2. EDITOR PANEL */
+    .editor-panel {
+      background: rgba(10, 10, 12, 0.8);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      height: 100%;
+    }
+
+    h2 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      margin: 0 0 15px 0;
+      font-weight: 700;
+    }
+
+    /* Cards & Inputs */
+    .control-group {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px;
+      position: relative;
+      transition: all 0.2s var(--ease);
+    }
+
+    .control-group:focus-within {
+      border-color: var(--primary);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 14px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      transition: 0.2s;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-bottom-color: var(--primary);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+      line-height: 1.5;
+    }
+
+    /* Draggable Lists */
+    .draggable-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .drag-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 15px;
+      position: relative;
+      cursor: grab;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .drag-item:active {
+      cursor: grabbing;
+      transform: scale(0.99);
+      border-color: var(--primary);
+    }
+
+    .drag-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn-xs {
+      font-size: 10px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-xs:hover {
+      color: #fff;
+      border-color: #fff;
+    }
+
+    .btn-xs.danger:hover {
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      transition: 0.2s;
+      font-size: 13px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: var(--primary-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 25px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--text-muted);
+      background: var(--glass-shine);
+    }
+
+    /* 3. PREVIEW STAGE */
+    .stage-panel {
+      background: #000;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+      overflow-y: auto;
+      height: 100%;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+
+    /* Toolbar */
+    .stage-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 8px;
+      margin-bottom: 30px;
+      display: flex;
+      gap: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .tool-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 20px;
+      transition: 0.2s;
+    }
+
+    .tool-btn:hover {
+      color: #fff;
+    }
+
+    .tool-btn.active {
+      background: var(--text);
+      color: #000;
+    }
+
+    /* Score Meter */
+    .score-badge {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--panel);
+      border: 4px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--text);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* THE PAPER */
+    .cv-paper {
+      width: 210mm;
+      min-height: 297mm;
+      background: #fff;
+      color: #111;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      transform-origin: top center;
+      transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      margin-bottom: 50px;
+    }
+
+    /* === NEW: AI CAREER ANALYZER MODAL === */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-card {
+      background: #111;
+      border: 1px solid var(--border);
+      width: 600px;
+      max-width: 90vw;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 25px 100px rgba(0, 0, 0, 0.8);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-head {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .stat-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 5px;
+    }
+
+    .stat-lbl {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .ai-feedback-box {
+      background: rgba(99, 102, 241, 0.05);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 20px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #eee;
+    }
+
+    .keyword-tag {
+      display: inline-block;
+      padding: 4px 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      font-size: 11px;
+      margin: 2px;
+      color: #fff;
+    }
+
+    .keyword-tag.missing {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    /* Photo Canvas */
+    .canvas-wrap {
+      width: 100%;
+      height: 300px;
+      background: #050505;
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    /* === TEMPLATES CSS === */
+    /* TPL 1: EXECUTIVE */
+    .tpl-executive {
+      padding: 50px;
+      font-family: 'Times New Roman', serif;
+    }
+
+    .tpl-executive .cv-header {
+      border-bottom: 2px solid #111;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .tpl-executive h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 38px;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .tpl-executive .cv-role {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-top: 5px;
+      color: #555;
+    }
+
+    .tpl-executive .cv-contact {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      color: #444;
+      text-align: right;
+      line-height: 1.5;
+    }
+
+    .tpl-executive h3 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+      margin: 25px 0 15px 0;
+      color: #000;
+    }
+
+    .tpl-executive .job-row {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      margin-bottom: 4px;
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+    }
+
+    .tpl-executive .job-sub {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    .tpl-executive p,
+    .tpl-executive li {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #333;
+      margin-bottom: 4px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .tpl-executive .photo-slot {
+      display: none;
+    }
+
+    .tpl-executive.has-photo .cv-header {
+      align-items: center;
+    }
+
+    .tpl-executive img.cv-photo-el {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 20px;
+      filter: grayscale(100%);
+    }
+
+    /* TPL 2: SILICON */
+    .tpl-silicon {
+      padding: 0;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      height: 100%;
+      min-height: 297mm;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .tpl-silicon .side-col {
+      background: #f8fafc;
+      padding: 40px 30px;
+      color: #333;
+    }
+
+    .tpl-silicon .main-col {
+      padding: 40px 30px;
+      background: #fff;
+    }
+
+    .tpl-silicon img.cv-photo-el {
+      width: 140px;
+      height: 140px;
+      border-radius: 12px;
+      object-fit: cover;
+      margin-bottom: 25px;
+    }
+
+    .tpl-silicon h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1;
+      margin: 0 0 10px 0;
+      color: #111;
+    }
+
+    .tpl-silicon .cv-role {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--primary);
+      margin-bottom: 30px;
+    }
+
+    .tpl-silicon h3 {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #888;
+      margin: 30px 0 15px 0;
+      letter-spacing: 1px;
+    }
+
+    .tpl-silicon .side-col h3 {
+      color: var(--primary);
+    }
+
+    .tpl-silicon .contact-item {
+      font-size: 12px;
+      margin-bottom: 6px;
+      word-break: break-all;
+    }
+
+    .tpl-silicon .job-block {
+      margin-bottom: 20px;
+    }
+
+    .tpl-silicon .job-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: #111;
+    }
+
+    .tpl-silicon .job-meta {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 6px;
+    }
+
+    .tpl-silicon li {
+      font-size: 13px;
+      color: #444;
+      line-height: 1.5;
+      margin-bottom: 4px;
+    }
+
+    /* TPL 3: STARK */
+    .tpl-stark {
+      padding: 40px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #000;
+    }
+
+    .tpl-stark header {
+      border-bottom: 4px solid #000;
+      padding-bottom: 20px;
+      margin-bottom: 40px;
+    }
+
+    .tpl-stark h1 {
+      font-size: 56px;
+      font-weight: 900;
+      letter-spacing: -3px;
+      line-height: 0.9;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    .tpl-stark .cv-role {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      background: #000;
+      color: #fff;
+      display: inline-block;
+      padding: 4px 8px;
+      margin-top: 15px;
+    }
+
+    .tpl-stark .grid-layout {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 40px;
+    }
+
+    .tpl-stark h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: underline;
+      margin: 0 0 20px 0;
+    }
+
+    .tpl-stark .job-block {
+      margin-bottom: 25px;
+      border-left: 2px solid #eee;
+      padding-left: 15px;
+    }
+
+    .tpl-stark .job-title {
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    .tpl-stark .job-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .tpl-stark img.cv-photo-el {
+      width: 80px;
+      height: 80px;
+      position: absolute;
+      top: 40px;
+      right: 40px;
+      filter: grayscale(100%) contrast(1.2);
+    }
+
+    /* MEDIA QUERIES (Mobile Scroll Safety) */
+    @media (max-width: 1000px) {
+      .apex-shell {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        overflow: auto;
+      }
+
+      body {
+        height: auto;
+        overflow: auto;
+      }
+
+      .nav-rail {
+        flex-direction: row;
+        height: auto;
+        padding: 10px;
+        width: 100%;
+        overflow-x: auto;
+        border-bottom: 1px solid var(--border);
+        border-right: none;
+      }
+
+      .editor-panel {
+        height: auto;
+        border-right: none;
+        overflow: visible;
+      }
+
+      .stage-panel {
+        height: auto;
+        overflow: visible;
+        padding: 20px;
+      }
+
+      .stage-toolbar {
+        position: static;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .modal-card {
+        width: 95%;
+      }
+    }
+
+    /* PRINT HANDLING */
+    @media print {
+      body {
+        background: white;
+        display: block;
+        overflow: visible;
+      }
+
+      .nav-rail,
+      .editor-panel,
+      .stage-toolbar,
+      .score-badge,
+      .modal-overlay {
+        display: none !important;
+      }
+
+      .apex-shell {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .stage-panel {
+        display: block;
+        padding: 0;
+        margin: 0;
+        background: white;
+        overflow: visible;
+      }
+
+      .cv-paper {
+        box-shadow: none;
+        margin: 0;
+        transform: none !important;
+        width: 100%;
+        height: auto;
+        page-break-after: always;
+      }
+
+      * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+
+    <!-- Video Learning System -->
+    <script src="/js/courseData.js"></script>
+    <script src="/js/videoSystem.js"></script>
+</head>
+
+<body>
+
+  <div class="apex-shell">
+
+    <nav class="nav-rail">
+      <div class="brand-mark" onclick="location.href='../dashboard.html'" title="Back to Dashboard"
+        style="cursor:pointer;">
+        <i class="ph ph-arrow-left" style="font-size:20px;"></i>
+      </div>
+
+      <div class="nav-item active" title="Editor"><i class="ph ph-pencil-simple"></i></div>
+      <div class="nav-item pulse-btn" title="AI Career Analyst" onclick="aiTool.open()"><i class="ph ph-brain"></i>
+      </div>
+      <div class="nav-item" title="Photo Studio" onclick="document.getElementById('file-upload').click()"><i
+          class="ph ph-camera"></i></div>
+      <div class="nav-item" title="Export PDF" onclick="window.print()"><i class="ph ph-printer"></i></div>
+
+      <div style="flex:1"></div>
+
+      <div class="nav-item" title="Back to Dashboard" onclick="location.href='../dashboard.html'"
+        style="margin-bottom:20px; color:var(--danger)">
+        <i class="ph ph-sign-out"></i>
+      </div>
+    </nav>
+
+    <aside class="editor-panel">
+
+      <section>
+        <h2>Identity</h2>
+        <div class="control-group">
+          <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <div style="flex:1">
+              <label>FULL NAME</label>
+              <input type="text" id="inp-name" placeholder="E.g. Alexander Pierce">
+            </div>
+            <div style="width:100px; display:flex; align-items:flex-end;">
+              <button class="btn btn-ghost" id="btn-photo" style="font-size:11px; height:26px;">+ Photo</button>
+              <input type="file" id="file-upload" hidden accept="image/*">
+            </div>
+          </div>
+          <label>CURRENT ROLE</label>
+          <input type="text" id="inp-role" placeholder="E.g. Senior Architect">
+        </div>
+
+        <div class="control-group" style="margin-top:15px; display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+          <div>
+            <label>EMAIL</label>
+            <input type="text" id="inp-email" placeholder="alex@example.com">
+          </div>
+          <div>
+            <label>PHONE</label>
+            <input type="text" id="inp-phone" placeholder="+1 555 0100">
+          </div>
+        </div>
+        <div class="control-group" style="margin-top:15px;">
+          <label>LOCATION / WEBSITE</label>
+          <input type="text" id="inp-loc" placeholder="New York, NY | alexpierce.com">
+        </div>
+      </section>
+
+      <section>
+        <h2>Professional Summary</h2>
+        <div class="control-group">
+          <textarea id="inp-summary" placeholder="Briefly describe your expertise and career goals..."></textarea>
+        </div>
+      </section>
+
+      <section>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:15px;">
+          <h2>Experience</h2>
+          <button class="btn-xs" onclick="app.addExp()">+ Add Role</button>
+        </div>
+        <div id="list-exp" class="draggable-list"></div>
+      </section>
+
+      <section>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:15px;">
+          <h2>Education</h2>
+          <button class="btn-xs" onclick="app.addEdu()">+ Add School</button>
+        </div>
+        <div id="list-edu" class="draggable-list"></div>
+      </section>
+
+      <section>
+        <h2>Skills</h2>
+        <div class="control-group">
+          <textarea id="inp-skills" placeholder="List your skills, separated by commas..."></textarea>
+        </div>
+      </section>
+
+    </aside>
+
+    <main class="stage-panel">
+
+      <div class="stage-toolbar">
+        <button class="tool-btn active" onclick="app.setTemplate('executive', this)">Executive</button>
+        <button class="tool-btn" onclick="app.setTemplate('silicon', this)">Silicon</button>
+        <button class="tool-btn" onclick="app.setTemplate('stark', this)">Stark</button>
+        <div style="width:1px; background:rgba(255,255,255,0.2); margin:0 5px;"></div>
+        <button class="tool-btn" onclick="app.zoom(-0.1)">-</button>
+        <button class="tool-btn" onclick="app.zoom(0.1)">+</button>
+      </div>
+
+      <div class="score-badge" id="score-val" style="border-color:var(--accent);">0</div>
+
+      <div id="cv-paper" class="cv-paper tpl-executive">
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="photo-modal">
+    <div class="modal-card">
+      <h3 style="margin:0 0 15px 0; color:#fff;">Photo Studio</h3>
+      <div class="canvas-wrap">
+        <canvas id="crop-canvas"></canvas>
+      </div>
+      <div style="display:flex; gap:10px; margin-bottom:15px;">
+        <div style="flex:1">
+          <label>Zoom</label>
+          <input type="range" id="crop-zoom" min="0.5" max="3" step="0.1" value="1">
+        </div>
+        <div style="flex:1">
+          <label>Filter</label>
+          <select id="crop-filter" style="background:#222; border:1px solid #444; padding:5px; border-radius:4px;">
+            <option value="none">None</option>
+            <option value="grayscale">Grayscale</option>
+            <option value="sepia">Sepia</option>
+            <option value="contrast">High Contrast</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-ghost" onclick="photoStudio.close()">Cancel</button>
+        <button class="btn btn-primary" onclick="photoStudio.save()">Apply Photo</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="ai-modal">
+    <div class="modal-card" style="width:700px;">
+      <div class="modal-head">
+        <div class="modal-title"><span style="font-size:20px">🧠</span> AI Career Strategist</div>
+        <button class="btn-xs danger" onclick="aiTool.close()">Close</button>
+      </div>
+
+      <label>TARGET JOB DESCRIPTION</label>
+      <div class="control-group">
+        <textarea id="ai-job-desc" placeholder="Paste the job description here..." style="min-height:100px;"></textarea>
+      </div>
+
+      <button class="btn btn-primary" style="margin-top:15px; width:100%" onclick="aiTool.analyze()">Analyze
+        Match</button>
+
+      <div id="ai-results" style="display:none; margin-top:25px; border-top:1px solid var(--border); padding-top:20px;">
+        <div class="analysis-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+          <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; text-align:center;">
+            <div style="font-size:32px; font-weight:800; color:var(--accent);" id="ai-match-score">0%</div>
+            <div style="font-size:10px; text-transform:uppercase; color:#888;">Match Score</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px;">
+            <label style="margin-bottom:5px;">Missing Keywords</label>
+            <div id="ai-missing-keys" style="display:flex; flex-wrap:wrap; gap:5px;"></div>
+          </div>
+        </div>
+
+        <label style="margin-top:20px;">CAREER ADVICE</label>
+        <div class="control-group" style="color:#ddd; font-size:13px; line-height:1.6;" id="ai-advice">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * SCALIFY APEX ENGINE v2
+     */
+
+    const app = {
+      state: {
+        name: '', role: '', email: '', phone: '', location: '',
+        summary: '', skills: '', photoData: null,
+        experience: [],
+        education: [],
+        template: 'tpl-executive',
+        zoom: 0.9
+      },
+
+      init() {
+        this.bindInputs();
+        this.loadLocal();
+        if (this.state.experience.length === 0) this.addExp();
+        if (this.state.education.length === 0) this.addEdu();
+        this.render();
+        this.updateScore();
+
+        document.getElementById('cv-paper').style.transform = `scale(${this.state.zoom})`;
+      },
+
+      bindInputs() {
+        const ids = ['name', 'role', 'email', 'phone', 'loc', 'summary', 'skills'];
+        ids.forEach(key => {
+          const el = document.getElementById('inp-' + key);
+          el.addEventListener('input', (e) => {
+            this.state[key] = e.target.value;
+            this.render();
+            this.saveLocal();
+          });
+        });
+
+        document.getElementById('btn-photo').addEventListener('click', () => {
+          document.getElementById('file-upload').click();
+        });
+        document.getElementById('file-upload').addEventListener('change', photoStudio.load);
+      },
+
+      /* DATA OPS */
+      addExp() {
+        this.state.experience.push({ id: Date.now(), role: '', company: '', date: '', desc: '' });
+        this.renderList('exp');
+        this.render();
+      },
+      removeExp(id) {
+        this.state.experience = this.state.experience.filter(i => i.id !== id);
+        this.renderList('exp');
+        this.render();
+        this.saveLocal();
+      },
+      updateExp(id, field, val) {
+        const item = this.state.experience.find(i => i.id === id);
+        if (item) { item[field] = val; this.render(); this.saveLocal(); }
+      },
+
+      addEdu() {
+        this.state.education.push({ id: Date.now(), school: '', degree: '', date: '' });
+        this.renderList('edu');
+        this.render();
+      },
+      removeEdu(id) {
+        this.state.education = this.state.education.filter(i => i.id !== id);
+        this.renderList('edu');
+        this.render();
+        this.saveLocal();
+      },
+      updateEdu(id, field, val) {
+        const item = this.state.education.find(i => i.id === id);
+        if (item) { item[field] = val; this.render(); this.saveLocal(); }
+      },
+
+      renderList(type) {
+        const container = document.getElementById(type === 'exp' ? 'list-exp' : 'list-edu');
+        container.innerHTML = '';
+        const list = type === 'exp' ? this.state.experience : this.state.education;
+
+        list.forEach(item => {
+          const el = document.createElement('div');
+          el.className = 'drag-item';
+          el.draggable = true;
+
+          // Drag Events
+          el.addEventListener('dragstart', () => el.classList.add('dragging'));
+          el.addEventListener('dragend', () => {
+            el.classList.remove('dragging');
+            // Reorder logic placeholder
+          });
+
+          if (type === 'exp') {
+            el.innerHTML = `
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;">
+              <input placeholder="Role" value="${item.role}" oninput="app.updateExp(${item.id}, 'role', this.value)">
+              <input placeholder="Company" value="${item.company}" oninput="app.updateExp(${item.id}, 'company', this.value)">
+            </div>
+            <input placeholder="Date (e.g. 2020 - Present)" value="${item.date}" style="margin-bottom:8px;" oninput="app.updateExp(${item.id}, 'date', this.value)">
+            <textarea placeholder="Achievements..." oninput="app.updateExp(${item.id}, 'desc', this.value)">${item.desc}</textarea>
+            <div class="drag-actions">
+              <button class="btn-xs danger" onclick="app.removeExp(${item.id})">Remove</button>
+            </div>
+          `;
+          } else {
+            el.innerHTML = `
+            <input placeholder="School" value="${item.school}" style="margin-bottom:8px;" oninput="app.updateEdu(${item.id}, 'school', this.value)">
+            <div style="display:grid; grid-template-columns:2fr 1fr; gap:10px;">
+              <input placeholder="Degree" value="${item.degree}" oninput="app.updateEdu(${item.id}, 'degree', this.value)">
+              <input placeholder="Year" value="${item.date}" oninput="app.updateEdu(${item.id}, 'date', this.value)">
+            </div>
+            <div class="drag-actions"><button class="btn-xs danger" onclick="app.removeEdu(${item.id})">Remove</button></div>
+          `;
+          }
+          container.appendChild(el);
+        });
+
+        container.addEventListener('dragover', e => {
+          e.preventDefault();
+          const afterElement = getDragAfterElement(container, e.clientY);
+          const draggable = document.querySelector('.dragging');
+          if (afterElement == null) {
+            container.appendChild(draggable);
+          } else {
+            container.insertBefore(draggable, afterElement);
+          }
+        });
+      },
+
+      render() {
+        const s = this.state;
+        const paper = document.getElementById('cv-paper');
+        const hasPhoto = !!s.photoData;
+
+        paper.className = `cv-paper ${s.template} ${hasPhoto ? 'has-photo' : ''}`;
+        const imgTag = hasPhoto ? `<img src="${s.photoData}" class="cv-photo-el">` : '';
+
+        if (s.template === 'tpl-executive') {
+          paper.innerHTML = `
+          <div class="cv-header">
+            ${hasPhoto ? imgTag : ''}
+            <div>
+              <h1>${s.name || 'YOUR NAME'}</h1>
+              <div class="cv-role">${s.role}</div>
+            </div>
+            <div class="cv-contact">
+              ${s.email}<br>${s.phone}<br>${s.location}
+            </div>
+          </div>
+          ${s.summary ? `<h3>Summary</h3><p>${s.summary}</p>` : ''}
+          <h3>Experience</h3>
+          ${s.experience.map(e => `
+            <div style="margin-bottom:12px;">
+              <div class="job-row"><span>${e.company}</span> <span>${e.date}</span></div>
+              <div class="job-sub">${e.role}</div>
+              <p>${e.desc.replace(/\n/g, '<br>')}</p>
+            </div>
+          `).join('')}
+          <h3>Education</h3>
+          ${s.education.map(e => `
+            <div style="margin-bottom:8px;">
+               <strong>${e.school}</strong> — ${e.degree} <span style="float:right">${e.date}</span>
+            </div>
+          `).join('')}
+          <h3>Skills</h3>
+          <p>${s.skills}</p>
+        `;
+        }
+        else if (s.template === 'tpl-silicon') {
+          paper.innerHTML = `
+          <div class="side-col">
+            ${hasPhoto ? imgTag : ''}
+            <h3>Contact</h3>
+            <div class="contact-item">${s.email}</div>
+            <div class="contact-item">${s.phone}</div>
+            <div class="contact-item">${s.location}</div>
+            <h3>Education</h3>
+             ${s.education.map(e => `
+              <div style="margin-bottom:15px; font-size:13px;">
+                 <div style="font-weight:700">${e.school}</div>
+                 <div>${e.degree}</div>
+                 <div style="color:#666">${e.date}</div>
+              </div>
+            `).join('')}
+            <h3>Skills</h3>
+            <div style="font-size:13px; line-height:1.6;">${s.skills}</div>
+          </div>
+          <div class="main-col">
+            <h1>${s.name || 'Your Name'}</h1>
+            <div class="cv-role">${s.role}</div>
+            <p style="margin-bottom:40px; line-height:1.6; color:#444;">${s.summary}</p>
+            <h3 style="color:#2563eb; border-bottom:1px solid #eee; padding-bottom:10px;">Experience</h3>
+            ${s.experience.map(e => `
+              <div class="job-block">
+                <div class="job-title">${e.role}</div>
+                <div class="job-meta">${e.company} | ${e.date}</div>
+                <div style="white-space:pre-line; color:#444; font-size:13px;">${e.desc}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        }
+        else if (s.template === 'tpl-stark') {
+          paper.innerHTML = `
+           ${hasPhoto ? imgTag : ''}
+           <header>
+             <h1>${s.name || 'NAME'}</h1>
+             <div class="cv-role">${s.role || 'ROLE'}</div>
+           </header>
+           <div class="grid-layout">
+             <div>
+               <h3>CONTACT</h3>
+               <div style="font-size:12px; margin-bottom:20px; line-height:1.8;">
+                 ${s.email}<br>${s.phone}<br>${s.location}
+               </div>
+               <h3>SKILLS</h3>
+               <div style="font-size:12px; line-height:1.6; text-transform:uppercase;">
+                 ${s.skills}
+               </div>
+               <h3 style="margin-top:30px;">EDUCATION</h3>
+               ${s.education.map(e => `
+                  <div style="margin-bottom:15px; font-size:12px;">
+                    <strong>${e.school}</strong><br>${e.degree}<br><span style="color:#666">${e.date}</span>
+                  </div>
+               `).join('')}
+             </div>
+             <div>
+               <h3>PROFILE</h3>
+               <p style="font-size:13px; margin-bottom:30px; line-height:1.6;">${s.summary}</p>
+               <h3>EXPERIENCE</h3>
+               ${s.experience.map(e => `
+                 <div class="job-block">
+                   <div class="job-title">${e.role}</div>
+                   <span class="job-date">${e.company} // ${e.date}</span>
+                   <p style="font-size:13px; line-height:1.5;">${e.desc}</p>
+                 </div>
+               `).join('')}
+             </div>
+           </div>
+        `;
+        }
+        this.updateScore();
+      },
+
+      setTemplate(name, btn) {
+        this.state.template = 'tpl-' + name;
+        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.render();
+        this.saveLocal();
+      },
+
+      zoom(delta) {
+        this.state.zoom = Math.max(0.5, Math.min(1.5, this.state.zoom + delta));
+        document.getElementById('cv-paper').style.transform = `scale(${this.state.zoom})`;
+      },
+
+      updateScore() {
+        let score = 0;
+        if (this.state.name) score += 10;
+        if (this.state.role) score += 10;
+        if (this.state.summary.length > 50) score += 15;
+        if (this.state.experience.length > 0) score += 20;
+        if (this.state.experience.some(e => e.desc.length > 30)) score += 15;
+        if (this.state.education.length > 0) score += 10;
+        if (this.state.skills) score += 10;
+        if (this.state.photoData) score += 10;
+
+        const el = document.getElementById('score-val');
+        el.textContent = score;
+        el.style.color = score > 80 ? '#4caf50' : (score > 50 ? '#ffeb3b' : '#f44336');
+        el.style.borderColor = el.style.color;
+      },
+
+      saveLocal() { localStorage.setItem('scalify_apex', JSON.stringify(this.state)); },
+      loadLocal() {
+        const d = localStorage.getItem('scalify_apex');
+        if (d) {
+          const parsed = JSON.parse(d);
+          this.state = { ...this.state, ...parsed };
+          document.getElementById('inp-name').value = this.state.name;
+          document.getElementById('inp-role').value = this.state.role;
+          document.getElementById('inp-email').value = this.state.email;
+          document.getElementById('inp-phone').value = this.state.phone;
+          document.getElementById('inp-loc').value = this.state.location;
+          document.getElementById('inp-summary').value = this.state.summary;
+          document.getElementById('inp-skills').value = this.state.skills;
+          this.renderList('exp');
+          this.renderList('edu');
+        }
+      },
+      reset() {
+        if (confirm('Clear all data?')) {
+          localStorage.removeItem('scalify_apex');
+          location.reload();
+        }
+      }
+    };
+
+    /**
+     * AI CAREER STRATEGIST (NEW FEATURE)
+     */
+    const aiTool = {
+      open() { document.getElementById('ai-modal').classList.add('open'); },
+      close() { document.getElementById('ai-modal').classList.remove('open'); },
+
+      analyze() {
+        const jobDesc = document.getElementById('ai-job-desc').value.toLowerCase();
+        if (!jobDesc) return alert("Please paste a job description first.");
+
+        const cvText = (app.state.summary + " " + app.state.skills + " " + JSON.stringify(app.state.experience)).toLowerCase();
+
+        // Keyword extraction (simulated)
+        const keywords = jobDesc.match(/\b\w{4,}\b/g) || [];
+        const uniqueKeys = [...new Set(keywords)];
+        let matches = 0;
+        let missing = [];
+
+        uniqueKeys.forEach(k => {
+          if (cvText.includes(k)) matches++;
+          else if (missing.length < 8) missing.push(k);
+        });
+
+        const score = Math.round((matches / uniqueKeys.length) * 100);
+
+        // Show results
+        document.getElementById('ai-results').style.display = 'block';
+        document.getElementById('ai-match-score').innerText = score + '%';
+
+        // Render Missing Keywords
+        const missingContainer = document.getElementById('ai-missing-keys');
+        missingContainer.innerHTML = missing.length > 0
+          ? missing.map(k => `<span class="keyword-tag missing">${k}</span>`).join('')
+          : '<span class="keyword-tag" style="background:#10b981">Perfect Match!</span>';
+
+        // Render Advice
+        const advice = document.getElementById('ai-advice');
+        if (score < 50) {
+          advice.innerHTML = "<strong>Low Match:</strong> Your CV is missing critical keywords found in the job description. Try weaving the missing terms above into your Experience bullet points.";
+        } else if (score < 80) {
+          advice.innerHTML = "<strong>Good Match:</strong> You are on the right track. To reach the top 10% of applicants, emphasize specific results (numbers/metrics) related to the keywords.";
+        } else {
+          advice.innerHTML = "<strong>Excellent Match:</strong> Your profile is highly aligned. Focus now on readability and formatting.";
+        }
+      }
+    };
+
+    const photoStudio = {
+      img: null,
+      canvas: document.getElementById('crop-canvas'),
+      ctx: null,
+      scale: 1,
+      load(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          photoStudio.img = new Image();
+          photoStudio.img.onload = () => photoStudio.openEditor();
+          photoStudio.img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      },
+      openEditor() {
+        document.getElementById('photo-modal').classList.add('open');
+        this.ctx = this.canvas.getContext('2d');
+        this.canvas.width = 400;
+        this.canvas.height = 300;
+        document.getElementById('crop-zoom').addEventListener('input', (e) => {
+          this.scale = parseFloat(e.target.value);
+          this.draw();
+        });
+        document.getElementById('crop-filter').addEventListener('change', () => this.draw());
+        this.draw();
+      },
+      draw() {
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        this.ctx.clearRect(0, 0, w, h);
+        const filter = document.getElementById('crop-filter').value;
+        if (filter === 'grayscale') this.ctx.filter = 'grayscale(100%)';
+        else if (filter === 'sepia') this.ctx.filter = 'sepia(100%)';
+        else if (filter === 'contrast') this.ctx.filter = 'contrast(150%)';
+        else this.ctx.filter = 'none';
+        const sw = this.img.width * this.scale * 0.5;
+        const sh = this.img.height * this.scale * 0.5;
+        const x = (w - sw) / 2;
+        const y = (h - sh) / 2;
+        this.ctx.drawImage(this.img, x, y, sw, sh);
+      },
+      save() {
+        const data = this.canvas.toDataURL('image/jpeg', 0.8);
+        app.state.photoData = data;
+        app.render();
+        app.saveLocal();
+        this.close();
+      },
+      close() { document.getElementById('photo-modal').classList.remove('open'); }
+    };
+
+    function getDragAfterElement(container, y) {
+      const draggableElements = [...container.querySelectorAll('.drag-item:not(.dragging)')];
+      return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
+        else return closest;
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    app.init();
+
+  </script>
+</body>
+
+</html>

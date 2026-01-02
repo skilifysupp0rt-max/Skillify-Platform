@@ -1,0 +1,153 @@
+[
+  {
+    "type": "send-otp",
+    "email": "gooamr88@gmail.com",
+    "otp": "937649",
+    "time": 1766177854634,
+    "status": "sent"
+  },
+  {
+    "type": "verify-otp",
+    "email": "gooamr88@gmail.com",
+    "time": 1766177880410,
+    "status": "verified"
+  },
+  {
+    "type": "send-otp",
+    "email": "gooamr88@gmail.com",
+    "otp": "766901",
+    "time": 1766177972743,
+    "status": "sent"
+  },
+  {
+    "type": "send-otp",
+    "email": "gooamr88@gmail.com",
+    "otp": "926543",
+    "time": 1766178103262,
+    "status": "error",
+    "error": "connect EHOSTUNREACH 1.179.115.1:587"
+  },
+  {
+    "type": "send-otp",
+    "email": "gooamr88@gmail.com",
+    "otp": "244168",
+    "time": 1766178169225,
+    "status": "sent"
+  },
+  {
+    "type": "verify-otp",
+    "email": "gooamr88@gmail.com",
+    "time": 1766178189445,
+    "status": "verified"
+  },
+  {
+    "type": "register",
+    "email": "gooamr88@gmail.com",
+    "username": "Yousef Amr",
+    "time": 1766178193949,
+    "status": "created"
+  },
+  {
+    "type": "forgot",
+    "email": "gooamr88@gmail.com",
+    "otp": "167271",
+    "time": 1766178281184,
+    "status": "sent"
+  },
+  {
+    "type": "verify-otp",
+    "email": "gooamr88@gmail.com",
+    "time": 1766178302063,
+    "status": "verified"
+  },
+  {
+    "type": "login",
+    "user": "Yousef Amr",
+    "email": "gooamr88@gmail.com",
+    "time": 1766178429684,
+    "status": "success"
+  },
+  {
+    "type": "send-otp",
+    "email": "skilifysupp0rt@gmail.com",
+    "otp": "579215",
+    "time": 1766178575760,
+    "status": "sent"
+  },
+  {
+    "type": "verify-otp",
+    "email": "skilifysupp0rt@gmail.com",
+    "time": 1766178619455,
+    "status": "verified"
+  },
+  {
+    "type": "register",
+    "email": "skilifysupp0rt@gmail.com",
+    "username": "Mona",
+    "time": 1766178624322,
+    "status": "created"
+  },
+  {
+    "type": "forgot",
+    "email": "gooamr88@gmail.com",
+    "otp": "258825",
+    "time": 1766178713359,
+    "status": "sent"
+  },
+  {
+    "type": "forgot",
+    "email": "gooamr88@gmail.com",
+    "otp": "402454",
+    "time": 1766178715109,
+    "status": "sent"
+  },
+  {
+    "type": "forgot",
+    "email": "gooamr88@gmail.com",
+    "otp": "289164",
+    "time": 1766178717503,
+    "status": "sent"
+  },
+  {
+    "type": "forgot",
+    "email": "gooamr88@gmail.com",
+    "otp": "546299",
+    "time": 1766178717067,
+    "status": "sent"
+  },
+  {
+    "type": "forgot",
+    "email": "gooamr88@gmail.com",
+    "otp": "984355",
+    "time": 1766178719185,
+    "status": "sent"
+  },
+  {
+    "type": "forgot",
+    "email": "gooamr88@gmail.com",
+    "otp": "267708",
+    "time": 1766178719396,
+    "status": "sent"
+  },
+  {
+    "type": "forgot",
+    "email": "gooamr88@gmail.com",
+    "otp": "526022",
+    "time": 1766178721909,
+    "status": "sent"
+  },
+  {
+    "type": "forgot",
+    "email": "gooamr88@gmail.com",
+    "otp": "868445",
+    "time": 1766178725515,
+    "status": "sent"
+  },
+  {
+    "type": "forgot",
+    "email": "gooamr88@gmail.com",
+    "otp": "759265",
+    "time": 1766178759833,
+    "status": "sent"
+  }
+]
